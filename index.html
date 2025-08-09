@@ -307,17 +307,6 @@
             margin-bottom: 5px;
         }
         
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
         .qr-generator {
             background: rgba(44, 62, 80, 0.85);
             border-radius: 15px;
@@ -409,6 +398,64 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
         }
         
+        /* Modal Password */
+        .password-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1001;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .password-modal-content {
+            background: var(--secondary);
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 400px;
+            width: 90%;
+        }
+        
+        .password-modal h2 {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .password-modal h2 i {
+            color: var(--primary);
+        }
+        
+        .password-modal input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 5px;
+            border: none;
+            margin-bottom: 15px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+        
+        .password-error {
+            color: var(--danger);
+            margin-bottom: 15px;
+            display: none;
+        }
+        
+        .password-modal-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .password-modal-buttons .btn {
+            flex: 1;
+        }
+        
         @media (max-width: 768px) {
             .main-content {
                 flex-direction: column;
@@ -425,6 +472,17 @@
             
             .nav-buttons {
                 flex-direction: column;
+            }
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
         }
     </style>
@@ -547,6 +605,26 @@
         </div>
     </div>
     
+    <!-- Modal Password -->
+    <div id="password-modal" class="password-modal">
+        <div class="password-modal-content">
+            <h2>
+                <i class="fas fa-lock"></i>
+                Masukkan Password Admin
+            </h2>
+            <input type="password" id="admin-password" placeholder="Masukkan password">
+            <p id="password-error" class="password-error">Password salah! Silakan coba lagi.</p>
+            <div class="password-modal-buttons">
+                <button id="submit-password" class="btn btn-primary">
+                    <i class="fas fa-check"></i> Submit
+                </button>
+                <button id="cancel-password" class="btn btn-danger">
+                    <i class="fas fa-times"></i> Batal
+                </button>
+            </div>
+        </div>
+    </div>
+    
     <div class="notification" id="notification">
         <i class="fas fa-bell"></i>
         <div class="content">
@@ -634,6 +712,11 @@
         const adminBtn = document.getElementById('admin-btn');
         const scannerPage = document.getElementById('scanner-page');
         const adminPage = document.getElementById('admin-page');
+        const passwordModal = document.getElementById('password-modal');
+        const adminPasswordInput = document.getElementById('admin-password');
+        const passwordError = document.getElementById('password-error');
+        const submitPasswordBtn = document.getElementById('submit-password');
+        const cancelPasswordBtn = document.getElementById('cancel-password');
         
         // Format tanggal dan waktu
         function formatDateTime(date) {
@@ -830,6 +913,66 @@
             });
         });
         
+        // Fungsi untuk menampilkan modal password
+        function showPasswordModal() {
+            passwordModal.style.display = 'flex';
+            adminPasswordInput.focus();
+            passwordError.style.display = 'none';
+        }
+        
+        // Fungsi untuk menyembunyikan modal password
+        function hidePasswordModal() {
+            passwordModal.style.display = 'none';
+            adminPasswordInput.value = '';
+            passwordError.style.display = 'none';
+        }
+        
+        // Fungsi untuk memverifikasi password
+        function verifyPassword() {
+            const password = adminPasswordInput.value;
+            if (password === 'smaitputri2025') {
+                hidePasswordModal();
+                // Buka halaman admin
+                scannerPage.classList.remove('active');
+                adminPage.classList.add('active');
+                scannerBtn.classList.add('btn-secondary');
+                scannerBtn.classList.remove('btn-primary');
+                adminBtn.classList.add('btn-primary');
+                adminBtn.classList.remove('btn-secondary');
+            } else {
+                passwordError.style.display = 'block';
+                adminPasswordInput.value = '';
+                adminPasswordInput.focus();
+            }
+        }
+        
+        // Navigasi halaman
+        scannerBtn.addEventListener('click', function() {
+            scannerPage.classList.add('active');
+            adminPage.classList.remove('active');
+            scannerBtn.classList.remove('btn-secondary');
+            scannerBtn.classList.add('btn-primary');
+            adminBtn.classList.remove('btn-primary');
+            adminBtn.classList.add('btn-secondary');
+        });
+        
+        adminBtn.addEventListener('click', function() {
+            showPasswordModal();
+        });
+        
+        // Event listener untuk tombol submit password
+        submitPasswordBtn.addEventListener('click', verifyPassword);
+        
+        // Event listener untuk tombol cancel
+        cancelPasswordBtn.addEventListener('click', hidePasswordModal);
+        
+        // Event listener untuk tekan enter di input password
+        adminPasswordInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                verifyPassword();
+            }
+        });
+        
         // Generate initial presence records
         function generateInitialPresences() {
             // Kosongkan daftar presensi
@@ -859,25 +1002,6 @@
                 presenceList.appendChild(presenceCard);
             }
         }
-        
-        // Navigasi halaman
-        scannerBtn.addEventListener('click', function() {
-            scannerPage.classList.add('active');
-            adminPage.classList.remove('active');
-            scannerBtn.classList.remove('btn-secondary');
-            scannerBtn.classList.add('btn-primary');
-            adminBtn.classList.remove('btn-primary');
-            adminBtn.classList.add('btn-secondary');
-        });
-        
-        adminBtn.addEventListener('click', function() {
-            scannerPage.classList.remove('active');
-            adminPage.classList.add('active');
-            scannerBtn.classList.add('btn-secondary');
-            scannerBtn.classList.remove('btn-primary');
-            adminBtn.classList.add('btn-primary');
-            adminBtn.classList.remove('btn-secondary');
-        });
         
         // Inisialisasi aplikasi
         function initApp() {
