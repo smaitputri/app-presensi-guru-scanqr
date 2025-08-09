@@ -88,6 +88,15 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
         }
         
+        .profile-section {
+            flex: 1;
+            min-width: 300px;
+            background: rgba(44, 62, 80, 0.85);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+        
         .section-title {
             display: flex;
             align-items: center;
@@ -398,62 +407,116 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
         }
         
-        /* Modal Password */
-        .password-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            z-index: 1001;
+        /* Login Page */
+        .login-page {
+            display: flex;
             justify-content: center;
             align-items: center;
+            min-height: 100vh;
         }
         
-        .password-modal-content {
-            background: var(--secondary);
-            padding: 30px;
-            border-radius: 10px;
-            max-width: 400px;
-            width: 90%;
-        }
-        
-        .password-modal h2 {
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .password-modal h2 i {
-            color: var(--primary);
-        }
-        
-        .password-modal input {
+        .login-container {
+            background: rgba(44, 62, 80, 0.95);
+            padding: 40px;
+            border-radius: 15px;
             width: 100%;
-            padding: 12px;
+            max-width: 500px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+        
+        .login-logo {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+        
+        .login-title {
+            font-size: 1.8rem;
+            margin-bottom: 30px;
+        }
+        
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .login-form input {
+            padding: 15px;
             border-radius: 5px;
             border: none;
-            margin-bottom: 15px;
-            background: rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.1);
             color: white;
+            font-size: 1rem;
         }
         
-        .password-error {
+        .login-form button {
+            padding: 15px;
+            border-radius: 5px;
+            border: none;
+            background: var(--primary);
+            color: white;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .login-form button:hover {
+            background: #2980b9;
+        }
+        
+        .login-error {
             color: var(--danger);
             margin-bottom: 15px;
             display: none;
         }
         
-        .password-modal-buttons {
-            display: flex;
-            gap: 10px;
+        /* Profile Card */
+        .profile-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 30px;
         }
         
-        .password-modal-buttons .btn {
-            flex: 1;
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 3rem;
+            font-weight: bold;
+            margin: 0 auto 20px;
+        }
+        
+        .profile-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .profile-subjects {
+            margin: 20px 0;
+        }
+        
+        .subject-badge {
+            display: inline-block;
+            background: rgba(52, 152, 219, 0.2);
+            padding: 5px 15px;
+            border-radius: 50px;
+            margin: 5px;
+            border: 1px solid var(--primary);
+        }
+        
+        .logout-btn {
+            margin-top: 20px;
+            width: 100%;
         }
         
         @media (max-width: 768px) {
@@ -473,6 +536,10 @@
             .nav-buttons {
                 flex-direction: column;
             }
+            
+            .login-container {
+                padding: 30px 20px;
+            }
         }
         
         @keyframes fadeIn {
@@ -488,7 +555,25 @@
     </style>
 </head>
 <body>
-    <div class="container">
+    <!-- Halaman Login -->
+    <div id="login-page" class="login-page">
+        <div class="login-container">
+            <div class="login-logo">
+                <i class="fas fa-chalkboard-teacher"></i>
+            </div>
+            <h1 class="login-title">Login Presensi Guru</h1>
+            
+            <div class="login-form">
+                <input type="text" id="username" placeholder="Nama Guru" autocomplete="off">
+                <input type="password" id="password" placeholder="Password (NIK)" autocomplete="off">
+                <button id="login-btn">Masuk</button>
+                <p id="login-error" class="login-error">Nama guru atau password salah!</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Halaman Aplikasi (Awalnya tersembunyi) -->
+    <div id="app-container" class="container" style="display: none;">
         <header>
             <div class="logo">
                 <i class="fas fa-chalkboard-teacher"></i>
@@ -503,8 +588,11 @@
             <button id="scanner-btn" class="btn btn-primary">
                 <i class="fas fa-qrcode"></i> Scanner Presensi
             </button>
-            <button id="admin-btn" class="btn btn-secondary">
-                <i class="fas fa-user-shield"></i> Halaman Admin
+            <button id="dashboard-btn" class="btn btn-secondary">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </button>
+            <button id="profile-btn" class="btn btn-secondary">
+                <i class="fas fa-user"></i> Profil
             </button>
         </div>
         
@@ -540,9 +628,9 @@
             </div>
         </div>
         
-        <!-- Halaman Admin -->
-        <div id="admin-page" class="page">
-            <div class="admin-section">
+        <!-- Halaman Dashboard -->
+        <div id="dashboard-page" class="page">
+            <div class="dashboard-section">
                 <div class="section-title">
                     <i class="fas fa-tachometer-alt"></i>
                     <h2>Dashboard Presensi</h2>
@@ -550,77 +638,59 @@
                 
                 <div class="stats-container">
                     <div class="stat-card">
-                        <i class="fas fa-users"></i>
-                        <div class="label">Total Guru</div>
-                        <div class="number">40</div>
-                    </div>
-                    <div class="stat-card">
                         <i class="fas fa-user-check"></i>
-                        <div class="label">Hadir Hari Ini</div>
-                        <div class="number" id="present-count">12</div>
+                        <div class="label">Presensi Hari Ini</div>
+                        <div class="number" id="today-presence">0</div>
                     </div>
                     <div class="stat-card">
-                        <i class="fas fa-user-clock"></i>
-                        <div class="label">Sedang Mengajar</div>
-                        <div class="number" id="teaching-count">8</div>
+                        <i class="fas fa-chalkboard"></i>
+                        <div class="label">Kelas Diajar</div>
+                        <div class="number" id="classes-taught">0</div>
                     </div>
                     <div class="stat-card">
-                        <i class="fas fa-door-open"></i>
-                        <div class="label">Kelas Aktif</div>
-                        <div class="number" id="active-classes">5</div>
+                        <i class="fas fa-clock"></i>
+                        <div class="label">Jam Mengajar</div>
+                        <div class="number" id="teaching-hours">0</div>
                     </div>
                 </div>
             </div>
             
-            <div class="admin-section">
+            <div class="dashboard-section">
                 <div class="section-title">
                     <i class="fas fa-history"></i>
-                    <h2>Riwayat Presensi Terbaru</h2>
+                    <h2>Riwayat Presensi Terakhir</h2>
                 </div>
                 
                 <div class="presence-list" id="presence-list">
                     <!-- Presence records will be added here dynamically -->
                 </div>
             </div>
-            
-            <div class="admin-section qr-generator">
+        </div>
+        
+        <!-- Halaman Profil -->
+        <div id="profile-page" class="page">
+            <div class="profile-section">
                 <div class="section-title">
-                    <i class="fas fa-qrcode"></i>
-                    <h2>Generator QR Code Kelas</h2>
+                    <i class="fas fa-user"></i>
+                    <h2>Profil Guru</h2>
                 </div>
-                <div class="form-group">
-                    <label for="classroom-input">Nama Kelas:</label>
-                    <input type="text" id="classroom-input" placeholder="Contoh: KELAS-7A">
-                    <button id="generate-btn" class="btn btn-success">
-                        <i class="fas fa-bolt"></i> Generate QR Code
+                
+                <div class="profile-card">
+                    <div class="profile-avatar" id="profile-avatar">A</div>
+                    <h2 class="profile-name" id="profile-name">Nama Guru</h2>
+                    <div id="profile-nik">NIK: 12345678</div>
+                    
+                    <div class="profile-subjects">
+                        <h3>Mata Pelajaran</h3>
+                        <div id="subject-badges">
+                            <!-- Subject badges will be added here -->
+                        </div>
+                    </div>
+                    
+                    <button id="logout-btn" class="btn btn-danger logout-btn">
+                        <i class="fas fa-sign-out-alt"></i> Keluar
                     </button>
                 </div>
-                <div id="qrcode-container"></div>
-                <p class="instructions">
-                    <strong>Petunjuk:</strong> Masukkan nama kelas (misal: KELAS-7A) dan tekan tombol Generate. 
-                    Setelah QR code muncul, klik kanan pada gambar dan pilih "Simpan Gambar Sebagai" 
-                    untuk menyimpan QR code. Cetak dan tempel di kelas yang sesuai.
-                </p>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Modal Password -->
-    <div id="password-modal" class="password-modal">
-        <div class="password-modal-content">
-            <h2>
-                <i class="fas fa-lock"></i>
-                Masukkan Password Admin
-            </h2>
-            <input type="password" id="admin-password" placeholder="Masukkan password">
-            <p id="password-error" class="password-error">Password salah! Silakan coba lagi.</p>
-            <div class="password-modal-buttons">
-                <button id="submit-password" class="btn btn-primary">
-                    <i class="fas fa-check"></i> Submit
-                </button>
-                <button id="cancel-password" class="btn btn-danger">
-                    <i class="fas fa-times"></i> Batal
-                </button>
             </div>
         </div>
     </div>
@@ -641,50 +711,51 @@
         // Inisialisasi variabel
         let videoStream = null;
         let scanning = false;
-        let presenceRecords = [];
+        let currentTeacher = null;
+        let teacherPresences = [];
         
-        // Data guru (40 guru)
+        // Data guru (40 guru dengan 1-3 mata pelajaran)
         const teachers = [
-            { id: 1, name: "Ahmad Surya", subject: "Matematika" },
-            { id: 2, name: "Budi Santoso", subject: "Bahasa Indonesia" },
-            { id: 3, name: "Citra Dewi", subject: "IPA" },
-            { id: 4, name: "Dian Permata", subject: "IPS" },
-            { id: 5, name: "Eko Prasetyo", subject: "Bahasa Inggris" },
-            { id: 6, name: "Fajar Nugroho", subject: "Pend. Agama" },
-            { id: 7, name: "Gita Maharani", subject: "Seni Budaya" },
-            { id: 8, name: "Hendra Setiawan", subject: "PJOK" },
-            { id: 9, name: "Indah Puspita", subject: "Prakarya" },
-            { id: 10, name: "Joko Susilo", subject: "Informatika" },
-            { id: 11, name: "Kartika Sari", subject: "Bimbingan Konseling" },
-            { id: 12, name: "Lukman Hakim", subject: "Sejarah" },
-            { id: 13, name: "Maya Indah", subject: "Bahasa Jawa" },
-            { id: 14, name: "Nur Hidayat", subject: "Pend. Pancasila" },
-            { id: 15, name: "Oki Setiawan", subject: "Matematika" },
-            { id: 16, name: "Putri Ayu", subject: "Bahasa Indonesia" },
-            { id: 17, name: "Rudi Hartono", subject: "IPA" },
-            { id: 18, name: "Sinta Dewi", subject: "IPS" },
-            { id: 19, name: "Teguh Prakoso", subject: "Bahasa Inggris" },
-            { id: 20, name: "Umar Said", subject: "Pend. Agama" },
-            { id: 21, name: "Vina Melinda", subject: "Seni Budaya" },
-            { id: 22, name: "Wahyu Adi", subject: "PJOK" },
-            { id: 23, name: "Yuni Astuti", subject: "Prakarya" },
-            { id: 24, name: "Zainal Abidin", subject: "Informatika" },
-            { id: 25, name: "Agus Supriyanto", subject: "Bimbingan Konseling" },
-            { id: 26, name: "Bayu Kurniawan", subject: "Sejarah" },
-            { id: 27, name: "Cindy Permata", subject: "Bahasa Jawa" },
-            { id: 28, name: "Dedi Susanto", subject: "Pend. Pancasila" },
-            { id: 29, name: "Eka Putri", subject: "Matematika" },
-            { id: 30, name: "Firman Syah", subject: "Bahasa Indonesia" },
-            { id: 31, name: "Gunawan Wibowo", subject: "IPA" },
-            { id: 32, name: "Hesti Rahayu", subject: "IPS" },
-            { id: 33, name: "Irfan Maulana", subject: "Bahasa Inggris" },
-            { id: 34, name: "Jihan Aulia", subject: "Pend. Agama" },
-            { id: 35, name: "Krisna Wijaya", subject: "Seni Budaya" },
-            { id: 36, name: "Lia Amelia", subject: "PJOK" },
-            { id: 37, name: "Mochammad Ali", subject: "Prakarya" },
-            { id: 38, name: "Nia Kurniasih", subject: "Informatika" },
-            { id: 39, name: "Oscar Pratama", subject: "Bimbingan Konseling" },
-            { id: 40, name: "Prita Widya", subject: "Sejarah" }
+            { id: 1, name: "Ahmad Surya", nik: "12345678", subjects: ["Matematika"] },
+            { id: 2, name: "Budi Santoso", nik: "23456789", subjects: ["Bahasa Indonesia"] },
+            { id: 3, name: "Citra Dewi", nik: "34567890", subjects: ["IPA", "Biologi"] },
+            { id: 4, name: "Dian Permata", nik: "45678901", subjects: ["IPS", "Sejarah"] },
+            { id: 5, name: "Eko Prasetyo", nik: "56789012", subjects: ["Bahasa Inggris"] },
+            { id: 6, name: "Fajar Nugroho", nik: "67890123", subjects: ["Pend. Agama"] },
+            { id: 7, name: "Gita Maharani", nik: "78901234", subjects: ["Seni Budaya"] },
+            { id: 8, name: "Hendra Setiawan", nik: "89012345", subjects: ["PJOK"] },
+            { id: 9, name: "Indah Puspita", nik: "90123456", subjects: ["Prakarya"] },
+            { id: 10, name: "Joko Susilo", nik: "01234567", subjects: ["Informatika"] },
+            { id: 11, name: "Kartika Sari", nik: "11223344", subjects: ["Bimbingan Konseling"] },
+            { id: 12, name: "Lukman Hakim", nik: "22334455", subjects: ["Sejarah"] },
+            { id: 13, name: "Maya Indah", nik: "33445566", subjects: ["Bahasa Jawa"] },
+            { id: 14, name: "Nur Hidayat", nik: "44556677", subjects: ["Pend. Pancasila"] },
+            { id: 15, name: "Oki Setiawan", nik: "55667788", subjects: ["Matematika"] },
+            { id: 16, name: "Putri Ayu", nik: "66778899", subjects: ["Bahasa Indonesia"] },
+            { id: 17, name: "Rudi Hartono", nik: "77889900", subjects: ["IPA", "Fisika"] },
+            { id: 18, name: "Sinta Dewi", nik: "88990011", subjects: ["IPS", "Geografi"] },
+            { id: 19, name: "Teguh Prakoso", nik: "99001122", subjects: ["Bahasa Inggris"] },
+            { id: 20, name: "Umar Said", nik: "00112233", subjects: ["Pend. Agama"] },
+            { id: 21, name: "Vina Melinda", nik: "11335577", subjects: ["Seni Budaya"] },
+            { id: 22, name: "Wahyu Adi", nik: "22446688", subjects: ["PJOK"] },
+            { id: 23, name: "Yuni Astuti", nik: "33557799", subjects: ["Prakarya"] },
+            { id: 24, name: "Zainal Abidin", nik: "44668800", subjects: ["Informatika"] },
+            { id: 25, name: "Agus Supriyanto", nik: "55779911", subjects: ["Bimbingan Konseling"] },
+            { id: 26, name: "Bayu Kurniawan", nik: "66880022", subjects: ["Sejarah"] },
+            { id: 27, name: "Cindy Permata", nik: "77991133", subjects: ["Bahasa Jawa"] },
+            { id: 28, name: "Dedi Susanto", nik: "88002244", subjects: ["Pend. Pancasila"] },
+            { id: 29, name: "Eka Putri", nik: "99113355", subjects: ["Matematika"] },
+            { id: 30, name: "Firman Syah", nik: "00224466", subjects: ["Bahasa Indonesia"] },
+            { id: 31, name: "Gunawan Wibowo", nik: "11336699", subjects: ["IPA", "Kimia"] },
+            { id: 32, name: "Hesti Rahayu", nik: "22447700", subjects: ["IPS", "Ekonomi"] },
+            { id: 33, name: "Irfan Maulana", nik: "33558811", subjects: ["Bahasa Inggris"] },
+            { id: 34, name: "Jihan Aulia", nik: "44669922", subjects: ["Pend. Agama"] },
+            { id: 35, name: "Krisna Wijaya", nik: "55770033", subjects: ["Seni Budaya"] },
+            { id: 36, name: "Lia Amelia", nik: "66881144", subjects: ["PJOK"] },
+            { id: 37, name: "Mochammad Ali", nik: "77992255", subjects: ["Prakarya"] },
+            { id: 38, name: "Nia Kurniasih", nik: "88003366", subjects: ["Informatika"] },
+            { id: 39, name: "Oscar Pratama", nik: "99114477", subjects: ["Bimbingan Konseling"] },
+            { id: 40, name: "Prita Widya", nik: "00225588", subjects: ["Sejarah"] }
         ];
         
         // Data kelas
@@ -695,28 +766,36 @@
         ];
         
         // DOM Elements
+        const loginPage = document.getElementById('login-page');
+        const appContainer = document.getElementById('app-container');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const loginBtn = document.getElementById('login-btn');
+        const loginError = document.getElementById('login-error');
+        
         const videoElement = document.getElementById('video');
         const startBtn = document.getElementById('start-btn');
         const stopBtn = document.getElementById('stop-btn');
         const scannerMessage = document.getElementById('scanner-message');
         const presenceList = document.getElementById('presence-list');
         const notification = document.getElementById('notification');
-        const presentCountElement = document.getElementById('present-count');
-        const teachingCountElement = document.getElementById('teaching-count');
-        const activeClassesElement = document.getElementById('active-classes');
+        const todayPresenceElement = document.getElementById('today-presence');
+        const classesTaughtElement = document.getElementById('classes-taught');
+        const teachingHoursElement = document.getElementById('teaching-hours');
         const currentDateTimeElement = document.getElementById('current-date-time');
-        const classroomInput = document.getElementById('classroom-input');
-        const generateBtn = document.getElementById('generate-btn');
-        const qrcodeContainer = document.getElementById('qrcode-container');
+        
+        const profileAvatar = document.getElementById('profile-avatar');
+        const profileName = document.getElementById('profile-name');
+        const profileNik = document.getElementById('profile-nik');
+        const subjectBadges = document.getElementById('subject-badges');
+        const logoutBtn = document.getElementById('logout-btn');
+        
         const scannerBtn = document.getElementById('scanner-btn');
-        const adminBtn = document.getElementById('admin-btn');
+        const dashboardBtn = document.getElementById('dashboard-btn');
+        const profileBtn = document.getElementById('profile-btn');
         const scannerPage = document.getElementById('scanner-page');
-        const adminPage = document.getElementById('admin-page');
-        const passwordModal = document.getElementById('password-modal');
-        const adminPasswordInput = document.getElementById('admin-password');
-        const passwordError = document.getElementById('password-error');
-        const submitPasswordBtn = document.getElementById('submit-password');
-        const cancelPasswordBtn = document.getElementById('cancel-password');
+        const dashboardPage = document.getElementById('dashboard-page');
+        const profilePage = document.getElementById('profile-page');
         
         // Format tanggal dan waktu
         function formatDateTime(date) {
@@ -741,9 +820,6 @@
             currentDateTimeElement.textContent = formatDateTime(now);
         }
         
-        setInterval(updateDateTime, 1000);
-        updateDateTime();
-        
         // Tampilkan notifikasi
         function showNotification(teacherName, classroom, time) {
             const messageElement = notification.querySelector('.message');
@@ -760,46 +836,102 @@
         function addPresenceRecord(teacher, classroom) {
             const now = new Date();
             const timeString = now.toLocaleTimeString();
+            const dateString = now.toLocaleDateString();
             
-            // Buat elemen presensi
-            const presenceCard = document.createElement('div');
-            presenceCard.className = 'presence-card new';
-            presenceCard.innerHTML = `
-                <div class="avatar">${teacher.name.charAt(0)}</div>
-                <div class="info">
-                    <div class="name">${teacher.name}</div>
-                    <div class="details">
-                        <div class="subject">${teacher.subject}</div>
-                        <div class="classroom">${classroom}</div>
-                        <div class="time">${timeString}</div>
-                    </div>
-                </div>
-            `;
+            // Buat record presensi
+            const presenceRecord = {
+                teacherId: teacher.id,
+                teacherName: teacher.name,
+                classroom: classroom,
+                date: dateString,
+                time: timeString,
+                timestamp: now.getTime()
+            };
             
-            presenceList.insertBefore(presenceCard, presenceList.firstChild);
+            // Simpan ke array
+            teacherPresences.unshift(presenceRecord);
             
-            // Setelah 10 detik, hilangkan status "new"
-            setTimeout(() => {
-                presenceCard.classList.remove('new');
-            }, 10000);
+            // Simpan ke localStorage
+            savePresencesToLocalStorage();
             
-            // Update statistik
+            // Update tampilan
+            updatePresenceList();
             updateStats();
             
             // Tampilkan notifikasi
             showNotification(teacher.name, classroom, timeString);
         }
         
+        // Update daftar presensi
+        function updatePresenceList() {
+            presenceList.innerHTML = '';
+            
+            // Tampilkan maksimal 10 presensi terbaru
+            const recentPresences = teacherPresences.slice(0, 10);
+            
+            recentPresences.forEach(presence => {
+                const presenceCard = document.createElement('div');
+                presenceCard.className = 'presence-card';
+                
+                // Jika presensi kurang dari 10 menit yang lalu, tambahkan class "new"
+                const now = new Date();
+                const presenceTime = new Date(presence.timestamp);
+                const minutesDiff = (now - presenceTime) / (1000 * 60);
+                
+                if (minutesDiff < 10) {
+                    presenceCard.classList.add('new');
+                }
+                
+                presenceCard.innerHTML = `
+                    <div class="avatar">${presence.teacherName.charAt(0)}</div>
+                    <div class="info">
+                        <div class="name">${presence.teacherName}</div>
+                        <div class="details">
+                            <div class="classroom">${presence.classroom}</div>
+                            <div class="date">${presence.date}</div>
+                            <div class="time">${presence.time}</div>
+                        </div>
+                    </div>
+                `;
+                
+                presenceList.appendChild(presenceCard);
+            });
+        }
+        
         // Update statistik dashboard
         function updateStats() {
-            // Simulasi data
-            const presentCount = Math.min(40, Math.floor(Math.random() * 10) + 32);
-            const teachingCount = Math.min(presentCount, Math.floor(Math.random() * 8) + 8);
-            const activeClasses = Math.min(12, Math.floor(Math.random() * 5) + 5);
+            if (!currentTeacher) return;
             
-            presentCountElement.textContent = presentCount;
-            teachingCountElement.textContent = teachingCount;
-            activeClassesElement.textContent = activeClasses;
+            const today = new Date().toLocaleDateString();
+            
+            // Hitung presensi hari ini
+            const todayPresences = teacherPresences.filter(p => p.date === today && p.teacherId === currentTeacher.id);
+            const todayClasses = [...new Set(todayPresences.map(p => p.classroom))];
+            
+            // Hitung jam mengajar (asumsi 2 jam per kelas)
+            const teachingHours = todayClasses.length * 2;
+            
+            todayPresenceElement.textContent = todayPresences.length;
+            classesTaughtElement.textContent = todayClasses.length;
+            teachingHoursElement.textContent = teachingHours;
+        }
+        
+        // Update profil guru
+        function updateProfile() {
+            if (!currentTeacher) return;
+            
+            profileAvatar.textContent = currentTeacher.name.charAt(0);
+            profileName.textContent = currentTeacher.name;
+            profileNik.textContent = `NIK: ${currentTeacher.nik}`;
+            
+            // Update mata pelajaran
+            subjectBadges.innerHTML = '';
+            currentTeacher.subjects.forEach(subject => {
+                const badge = document.createElement('span');
+                badge.className = 'subject-badge';
+                badge.textContent = subject;
+                subjectBadges.appendChild(badge);
+            });
         }
         
         // Mulai scanning
@@ -865,14 +997,11 @@
                     
                     // Cek apakah kelas valid
                     if (classrooms.includes(classroom)) {
-                        // Pilih guru secara acak (simulasi)
-                        const randomTeacher = teachers[Math.floor(Math.random() * teachers.length)];
-                        
-                        // Tambahkan presensi
-                        addPresenceRecord(randomTeacher, classroom);
+                        // Tambahkan presensi untuk guru yang login
+                        addPresenceRecord(currentTeacher, classroom);
                         
                         // Tampilkan pesan sukses
-                        scannerMessage.innerHTML = `<span style="color: #2ecc71;">Presensi berhasil! ${randomTeacher.name} di ${classroom}</span>`;
+                        scannerMessage.innerHTML = `<span style="color: #2ecc71;">Presensi berhasil! ${currentTeacher.name} di ${classroom}</span>`;
                         
                         // Berhenti scanning sementara
                         scanning = false;
@@ -894,128 +1023,136 @@
             }
         }
         
-        // Generate QR code
-        generateBtn.addEventListener('click', function() {
-            const classroom = classroomInput.value.trim();
-            if (!classroom) {
-                alert('Masukkan nama kelas terlebih dahulu');
-                return;
-            }
-            
-            qrcodeContainer.innerHTML = '';
-            new QRCode(qrcodeContainer, {
-                text: classroom,
-                width: 200,
-                height: 200,
-                colorDark: "#000000",
-                colorLight: "#ffffff",
-                correctLevel: QRCode.CorrectLevel.H
-            });
-        });
-        
-        // Fungsi untuk menampilkan modal password
-        function showPasswordModal() {
-            passwordModal.style.display = 'flex';
-            adminPasswordInput.focus();
-            passwordError.style.display = 'none';
-        }
-        
-        // Fungsi untuk menyembunyikan modal password
-        function hidePasswordModal() {
-            passwordModal.style.display = 'none';
-            adminPasswordInput.value = '';
-            passwordError.style.display = 'none';
-        }
-        
-        // Fungsi untuk memverifikasi password
-        function verifyPassword() {
-            const password = adminPasswordInput.value;
-            if (password === 'smaitputri2025') {
-                hidePasswordModal();
-                // Buka halaman admin
-                scannerPage.classList.remove('active');
-                adminPage.classList.add('active');
-                scannerBtn.classList.add('btn-secondary');
-                scannerBtn.classList.remove('btn-primary');
-                adminBtn.classList.add('btn-primary');
-                adminBtn.classList.remove('btn-secondary');
-            } else {
-                passwordError.style.display = 'block';
-                adminPasswordInput.value = '';
-                adminPasswordInput.focus();
-            }
-        }
-        
         // Navigasi halaman
         scannerBtn.addEventListener('click', function() {
             scannerPage.classList.add('active');
-            adminPage.classList.remove('active');
+            dashboardPage.classList.remove('active');
+            profilePage.classList.remove('active');
             scannerBtn.classList.remove('btn-secondary');
             scannerBtn.classList.add('btn-primary');
-            adminBtn.classList.remove('btn-primary');
-            adminBtn.classList.add('btn-secondary');
+            dashboardBtn.classList.remove('btn-primary');
+            dashboardBtn.classList.add('btn-secondary');
+            profileBtn.classList.remove('btn-primary');
+            profileBtn.classList.add('btn-secondary');
         });
         
-        adminBtn.addEventListener('click', function() {
-            showPasswordModal();
-        });
-        
-        // Event listener untuk tombol submit password
-        submitPasswordBtn.addEventListener('click', verifyPassword);
-        
-        // Event listener untuk tombol cancel
-        cancelPasswordBtn.addEventListener('click', hidePasswordModal);
-        
-        // Event listener untuk tekan enter di input password
-        adminPasswordInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                verifyPassword();
-            }
-        });
-        
-        // Generate initial presence records
-        function generateInitialPresences() {
-            // Kosongkan daftar presensi
-            presenceList.innerHTML = '';
+        dashboardBtn.addEventListener('click', function() {
+            scannerPage.classList.remove('active');
+            dashboardPage.classList.add('active');
+            profilePage.classList.remove('active');
+            scannerBtn.classList.remove('btn-primary');
+            scannerBtn.classList.add('btn-secondary');
+            dashboardBtn.classList.remove('btn-secondary');
+            dashboardBtn.classList.add('btn-primary');
+            profileBtn.classList.remove('btn-primary');
+            profileBtn.classList.add('btn-secondary');
             
-            // Buat beberapa presensi awal
-            for (let i = 0; i < 5; i++) {
-                const teacher = teachers[Math.floor(Math.random() * teachers.length)];
-                const classroom = classrooms[Math.floor(Math.random() * classrooms.length)];
-                const now = new Date();
-                const time = new Date(now - (i * 15 * 60000)); // 15 menit sebelumnya
-                
-                const presenceCard = document.createElement('div');
-                presenceCard.className = 'presence-card';
-                presenceCard.innerHTML = `
-                    <div class="avatar">${teacher.name.charAt(0)}</div>
-                    <div class="info">
-                        <div class="name">${teacher.name}</div>
-                        <div class="details">
-                            <div class="subject">${teacher.subject}</div>
-                            <div class="classroom">${classroom}</div>
-                            <div class="time">${time.toLocaleTimeString()}</div>
-                        </div>
-                    </div>
-                `;
-                
-                presenceList.appendChild(presenceCard);
+            // Update data saat membuka dashboard
+            updatePresenceList();
+            updateStats();
+        });
+        
+        profileBtn.addEventListener('click', function() {
+            scannerPage.classList.remove('active');
+            dashboardPage.classList.remove('active');
+            profilePage.classList.add('active');
+            scannerBtn.classList.remove('btn-primary');
+            scannerBtn.classList.add('btn-secondary');
+            dashboardBtn.classList.remove('btn-primary');
+            dashboardBtn.classList.add('btn-secondary');
+            profileBtn.classList.remove('btn-secondary');
+            profileBtn.classList.add('btn-primary');
+        });
+        
+        // Fungsi logout
+        logoutBtn.addEventListener('click', function() {
+            currentTeacher = null;
+            teacherPresences = [];
+            
+            // Sembunyikan aplikasi, tampilkan login page
+            appContainer.style.display = 'none';
+            loginPage.style.display = 'flex';
+            
+            // Reset form login
+            usernameInput.value = '';
+            passwordInput.value = '';
+            loginError.style.display = 'none';
+        });
+        
+        // Simpan presensi ke localStorage
+        function savePresencesToLocalStorage() {
+            if (currentTeacher) {
+                localStorage.setItem(`teacherPresences_${currentTeacher.id}`, JSON.stringify(teacherPresences));
+            }
+        }
+        
+        // Load presensi dari localStorage
+        function loadPresencesFromLocalStorage() {
+            if (currentTeacher) {
+                const savedPresences = localStorage.getItem(`teacherPresences_${currentTeacher.id}`);
+                if (savedPresences) {
+                    teacherPresences = JSON.parse(savedPresences);
+                }
             }
         }
         
         // Inisialisasi aplikasi
         function initApp() {
-            generateInitialPresences();
-            updateStats();
+            // Update waktu secara real-time
+            setInterval(updateDateTime, 1000);
+            updateDateTime();
             
-            // Generate contoh QR code
-            new QRCode(qrcodeContainer, {
-                text: "KELAS-7A",
-                width: 200,
-                height: 200,
-                colorDark: "#000000",
-                colorLight: "#ffffff",
-                correctLevel: QRCode.CorrectLevel.H
+            // Event listener untuk tombol login
+            loginBtn.addEventListener('click', function() {
+                const username = usernameInput.value.trim();
+                const password = passwordInput.value.trim();
+                
+                if (!username || !password) {
+                    loginError.textContent = "Masukkan nama guru dan password!";
+                    loginError.style.display = 'block';
+                    return;
+                }
+                
+                // Cari guru yang sesuai
+                const selectedTeacher = teachers.find(t => 
+                    t.name.toLowerCase() === username.toLowerCase() && 
+                    t.nik === password
+                );
+                
+                if (selectedTeacher) {
+                    // Login berhasil
+                    currentTeacher = selectedTeacher;
+                    
+                    // Load presensi dari localStorage
+                    loadPresencesFromLocalStorage();
+                    
+                    // Update UI
+                    updateProfile();
+                    updatePresenceList();
+                    updateStats();
+                    
+                    // Sembunyikan login page, tampilkan aplikasi
+                    loginPage.style.display = 'none';
+                    appContainer.style.display = 'block';
+                    
+                    // Reset form login
+                    usernameInput.value = '';
+                    passwordInput.value = '';
+                    loginError.style.display = 'none';
+                } else {
+                    // Login gagal
+                    loginError.textContent = "Nama guru atau password salah!";
+                    loginError.style.display = 'block';
+                    passwordInput.value = '';
+                    passwordInput.focus();
+                }
+            });
+            
+            // Event listener untuk tekan enter di input password
+            passwordInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    loginBtn.click();
+                }
             });
         }
         
