@@ -443,7 +443,7 @@
             gap: 15px;
         }
         
-        .login-form input {
+        .login-form input, .login-form select {
             padding: 12px;
             border-radius: 5px;
             border: none;
@@ -522,6 +522,32 @@
             font-size: 0.8rem;
             flex-wrap: wrap;
             gap: 5px;
+        }
+        
+        /* Scanner Animation */
+        .scanner-laser {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: rgba(255, 0, 0, 0.5);
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
+            animation: scan 2s infinite linear;
+            z-index: 1;
+            display: none;
+        }
+        
+        @keyframes scan {
+            0% {
+                top: 0;
+            }
+            50% {
+                top: 100%;
+            }
+            100% {
+                top: 0;
+            }
         }
         
         /* Responsive Styles */
@@ -614,7 +640,10 @@
             <h1 class="login-title">Login Presensi Guru</h1>
             
             <div class="login-form">
-                <input type="text" id="username" placeholder="Nama Guru" autocomplete="off">
+                <select id="teacher-select" required>
+                    <option value="">Pilih Nama Guru</option>
+                    <!-- Daftar guru akan diisi secara dinamis -->
+                </select>
                 <input type="password" id="password" placeholder="Password (NIK)" autocomplete="off">
                 <button id="login-btn">Masuk</button>
                 <p id="login-error" class="login-error">Nama guru atau password salah!</p>
@@ -659,6 +688,7 @@
                 
                 <div class="scanner-container">
                     <video id="video" playsinline></video>
+                    <div class="scanner-laser" id="scanner-laser"></div>
                     <div class="scanner-overlay">
                         <i class="fas fa-camera"></i>
                         <p>Arahkan kamera ke QR Code yang ada di kelas</p>
@@ -872,7 +902,7 @@
         // DOM Elements
         const loginPage = document.getElementById('login-page');
         const appContainer = document.getElementById('app-container');
-        const usernameInput = document.getElementById('username');
+        const teacherSelect = document.getElementById('teacher-select');
         const passwordInput = document.getElementById('password');
         const loginBtn = document.getElementById('login-btn');
         const loginError = document.getElementById('login-error');
@@ -881,6 +911,7 @@
         const startBtn = document.getElementById('start-btn');
         const stopBtn = document.getElementById('stop-btn');
         const scannerMessage = document.getElementById('scanner-message');
+        const scannerLaser = document.getElementById('scanner-laser');
         const presenceList = document.getElementById('presence-list');
         const notification = document.getElementById('notification');
         const todayPresenceElement = document.getElementById('today-presence');
@@ -1065,7 +1096,11 @@
                 
                 // Meminta izin untuk mengakses kamera
                 videoStream = await navigator.mediaDevices.getUserMedia({
-                    video: { facingMode: "environment" }
+                    video: { 
+                        facingMode: "environment",
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    }
                 });
                 
                 videoElement.srcObject = videoStream;
@@ -1076,11 +1111,14 @@
                 scanning = true;
                 scannerMessage.textContent = "Mengarahkan kamera ke QR Code...";
                 
+                // Tampilkan laser scanner
+                scannerLaser.style.display = 'block';
+                
                 // Memulai proses scanning
                 scanQRCode();
             } catch (err) {
                 console.error("Error accessing camera: ", err);
-                scannerMessage.textContent = "Gagal mengakses kamera. Pastikan Anda memberikan izin.";
+                scannerMessage.innerHTML = `<span style="color: #e74c3c;">Gagal mengakses kamera: ${err.message}</span>`;
                 startBtn.disabled = false;
             }
         });
@@ -1096,6 +1134,7 @@
             startBtn.disabled = false;
             stopBtn.disabled = true;
             scannerMessage.textContent = "Scanning dihentikan. Klik 'Mulai Scan' untuk memulai kembali.";
+            scannerLaser.style.display = 'none';
         });
         
         // Fungsi untuk scan QR code
@@ -1139,7 +1178,6 @@
                         requestAnimationFrame(scanQRCode);
                     }
                 } else {
-                    scannerMessage.textContent = "Mengarahkan kamera ke QR Code...";
                     requestAnimationFrame(scanQRCode);
                 }
             } else {
@@ -1226,7 +1264,7 @@
             loginPage.style.display = 'flex';
             
             // Reset form login
-            usernameInput.value = '';
+            teacherSelect.value = '';
             passwordInput.value = '';
             loginError.style.display = 'none';
         });
@@ -1320,19 +1358,38 @@
             setInterval(updateDateTime, 1000);
             updateDateTime();
             
+            // Isi dropdown guru
+            teachers.forEach(teacher => {
+                const option = document.createElement('option');
+                option.value = teacher.name;
+                option.textContent = teacher.name;
+                option.dataset.nik = teacher.nik;
+                teacherSelect.appendChild(option);
+            });
+            
+            // Tambahkan event listener untuk dropdown guru
+            teacherSelect.addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+                if (selectedOption.dataset.nik) {
+                    passwordInput.value = selectedOption.dataset.nik;
+                } else {
+                    passwordInput.value = '';
+                }
+            });
+            
             // Event listener untuk tombol login
             loginBtn.addEventListener('click', function() {
-                const username = usernameInput.value.trim();
+                const teacherName = teacherSelect.value.trim();
                 const password = passwordInput.value.trim();
                 
-                if (!username || !password) {
-                    loginError.textContent = "Masukkan nama guru dan password!";
+                if (!teacherName || !password) {
+                    loginError.textContent = "Pilih nama guru dan masukkan password!";
                     loginError.style.display = 'block';
                     return;
                 }
                 
                 // Cek jika login sebagai admin
-                if (username.toLowerCase() === "admin" && password === ADMIN_NIK) {
+                if (teacherName.toLowerCase() === "admin" && password === ADMIN_NIK) {
                     currentTeacher = {
                         id: 0,
                         name: "Admin",
@@ -1357,7 +1414,7 @@
                     dashboardBtn.click();
                     
                     // Reset form login
-                    usernameInput.value = '';
+                    teacherSelect.value = '';
                     passwordInput.value = '';
                     loginError.style.display = 'none';
                     return;
@@ -1365,7 +1422,7 @@
                 
                 // Cari guru yang sesuai
                 const selectedTeacher = teachers.find(t => 
-                    t.name.toLowerCase() === username.toLowerCase() && 
+                    t.name.toLowerCase() === teacherName.toLowerCase() && 
                     t.nik === password
                 );
                 
@@ -1389,7 +1446,7 @@
                     appContainer.style.display = 'block';
                     
                     // Reset form login
-                    usernameInput.value = '';
+                    teacherSelect.value = '';
                     passwordInput.value = '';
                     loginError.style.display = 'none';
                 } else {
