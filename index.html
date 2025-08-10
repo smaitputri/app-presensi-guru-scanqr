@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Presensi Guru - QR Code</title>
+    <title>Sistem Presensi Guru - Admin</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
     <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -23,6 +24,7 @@
             --danger: #e74c3c;
             --light: #ecf0f1;
             --dark: #34495e;
+            --admin: #9b59b6;
         }
         
         body {
@@ -188,6 +190,11 @@
         
         .btn-secondary {
             background: var(--secondary);
+            color: white;
+        }
+        
+        .btn-admin {
+            background: var(--admin);
             color: white;
         }
         
@@ -538,6 +545,96 @@
             display: none;
         }
         
+        /* Admin QR Generator */
+        .qr-generator-container {
+            margin: 20px 0;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        
+        .qr-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .qr-preview {
+            text-align: center;
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            display: none;
+        }
+        
+        .qr-preview canvas {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            max-width: 100%;
+        }
+        
+        .qr-class-name {
+            font-weight: bold;
+            margin: 15px 0 5px;
+            color: var(--warning);
+            font-size: 1.2rem;
+        }
+        
+        .qr-download-section {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        /* Excel export section */
+        .excel-export-container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        
+        .date-range-selector {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        
+        .date-input {
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .export-status {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            display: none;
+        }
+        
+        .export-status.success {
+            background: rgba(46, 204, 113, 0.2);
+            border: 1px solid var(--success);
+            display: block;
+        }
+        
+        .export-status.error {
+            background: rgba(231, 76, 60, 0.2);
+            border: 1px solid var(--danger);
+            display: block;
+        }
+        
         @keyframes scan {
             0% {
                 top: 0;
@@ -644,7 +741,7 @@
                     <option value="">Pilih Nama Guru</option>
                     <!-- Daftar guru akan diisi secara dinamis -->
                 </select>
-                <input type="password" id="password" placeholder="Password (NIK)" autocomplete="off">
+                <input type="password" id="password" placeholder="Password" autocomplete="off">
                 <button id="login-btn">Masuk</button>
                 <p id="login-error" class="login-error">Nama guru atau password salah!</p>
             </div>
@@ -673,7 +770,7 @@
             <button id="profile-btn" class="btn btn-secondary">
                 <i class="fas fa-user"></i> Profil
             </button>
-            <button id="admin-btn" class="btn btn-danger" style="display: none;">
+            <button id="admin-btn" class="btn btn-admin" style="display: none;">
                 <i class="fas fa-user-shield"></i> Admin
             </button>
         </div>
@@ -792,8 +889,8 @@
                     <button id="view-today-btn" class="btn btn-success">
                         <i class="fas fa-calendar-day"></i> Presensi Hari Ini
                     </button>
-                    <button id="export-btn" class="btn btn-secondary">
-                        <i class="fas fa-file-export"></i> Export Data
+                    <button id="export-excel-btn" class="btn btn-secondary">
+                        <i class="fas fa-file-excel"></i> Export Excel
                     </button>
                 </div>
                 
@@ -822,6 +919,54 @@
                 
                 <div class="admin-presence-list" id="admin-presence-list">
                     <!-- Admin presence records will be added here -->
+                </div>
+                
+                <!-- Section untuk Generate QR Code -->
+                <div class="qr-generator-container">
+                    <div class="section-title">
+                        <i class="fas fa-qrcode"></i>
+                        <h2>Generator QR Code Kelas</h2>
+                    </div>
+                    
+                    <div class="qr-controls">
+                        <select id="classroom-select" class="date-input">
+                            <option value="">Pilih Kelas</option>
+                            <!-- Options akan diisi secara dinamis -->
+                        </select>
+                        <button id="generate-qr-btn" class="btn btn-primary">
+                            <i class="fas fa-qrcode"></i> Generate QR
+                        </button>
+                    </div>
+                    
+                    <div class="qr-preview" id="qr-preview">
+                        <div class="qr-class-name" id="qr-class-name"></div>
+                        <canvas id="qr-canvas"></canvas>
+                        <div class="qr-download-section">
+                            <button id="download-qr-btn" class="btn btn-success">
+                                <i class="fas fa-download"></i> Download QR
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Section untuk Export Excel -->
+                <div class="excel-export-container">
+                    <div class="section-title">
+                        <i class="fas fa-file-excel"></i>
+                        <h2>Export Data Presensi</h2>
+                    </div>
+                    
+                    <div class="date-range-selector">
+                        <input type="date" id="start-date" class="date-input" placeholder="Tanggal Mulai">
+                        <input type="date" id="end-date" class="date-input" placeholder="Tanggal Akhir">
+                        <button id="generate-excel-btn" class="btn btn-success">
+                            <i class="fas fa-file-export"></i> Generate Excel
+                        </button>
+                    </div>
+                    
+                    <div class="export-status" id="export-status">
+                        Status export akan muncul di sini
+                    </div>
                 </div>
             </div>
         </div>
@@ -937,11 +1082,25 @@
         // Admin elements
         const viewAllBtn = document.getElementById('view-all-btn');
         const viewTodayBtn = document.getElementById('view-today-btn');
-        const exportBtn = document.getElementById('export-btn');
+        const exportExcelBtn = document.getElementById('export-excel-btn');
         const totalTeachersElement = document.getElementById('total-teachers');
         const presentTodayElement = document.getElementById('present-today');
         const totalPresenceElement = document.getElementById('total-presence');
         const adminPresenceList = document.getElementById('admin-presence-list');
+        
+        // QR Generator elements
+        const classroomSelect = document.getElementById('classroom-select');
+        const generateQrBtn = document.getElementById('generate-qr-btn');
+        const qrPreview = document.getElementById('qr-preview');
+        const qrCanvas = document.getElementById('qr-canvas');
+        const qrClassName = document.getElementById('qr-class-name');
+        const downloadQrBtn = document.getElementById('download-qr-btn');
+        
+        // Excel Export elements
+        const startDateInput = document.getElementById('start-date');
+        const endDateInput = document.getElementById('end-date');
+        const generateExcelBtn = document.getElementById('generate-excel-btn');
+        const exportStatus = document.getElementById('export-status');
         
         // Format tanggal dan waktu
         function formatDateTime(date) {
@@ -1198,7 +1357,7 @@
             profileBtn.classList.remove('btn-primary');
             profileBtn.classList.add('btn-secondary');
             adminBtn.classList.remove('btn-primary');
-            adminBtn.classList.add('btn-danger');
+            adminBtn.classList.add('btn-admin');
         });
         
         dashboardBtn.addEventListener('click', function() {
@@ -1213,7 +1372,7 @@
             profileBtn.classList.remove('btn-primary');
             profileBtn.classList.add('btn-secondary');
             adminBtn.classList.remove('btn-primary');
-            adminBtn.classList.add('btn-danger');
+            adminBtn.classList.add('btn-admin');
             
             // Update data saat membuka dashboard
             updatePresenceList();
@@ -1232,7 +1391,7 @@
             profileBtn.classList.remove('btn-secondary');
             profileBtn.classList.add('btn-primary');
             adminBtn.classList.remove('btn-primary');
-            adminBtn.classList.add('btn-danger');
+            adminBtn.classList.add('btn-admin');
         });
         
         adminBtn.addEventListener('click', function() {
@@ -1246,7 +1405,7 @@
             dashboardBtn.classList.add('btn-secondary');
             profileBtn.classList.remove('btn-primary');
             profileBtn.classList.add('btn-secondary');
-            adminBtn.classList.remove('btn-danger');
+            adminBtn.classList.remove('btn-admin');
             adminBtn.classList.add('btn-primary');
             
             // Update data admin
@@ -1328,28 +1487,94 @@
             });
         }
         
-        // Fungsi untuk export data
-        function exportData() {
+        // Fungsi untuk generate QR Code
+        function generateQRCode(classroom) {
+            // Clear previous QR Code
+            qrPreview.style.display = 'block';
+            qrClassName.textContent = classroom;
+            
+            // Create QR Code
+            const qr = new QRCode(qrCanvas, {
+                text: classroom,
+                width: 256,
+                height: 256,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+        }
+        
+        // Fungsi untuk download QR Code
+        function downloadQRCode() {
+            const link = document.createElement('a');
+            link.download = `${qrClassName.textContent}-presensi-qr.png`;
+            link.href = qrCanvas.toDataURL('image/png');
+            link.click();
+        }
+        
+        // Fungsi untuk export data presensi ke Excel
+        function exportToExcel() {
+            exportStatus.className = 'export-status';
+            exportStatus.style.display = 'none';
+            
+            const startDate = startDateInput.value;
+            const endDate = endDateInput.value;
+            
+            if (!startDate || !endDate) {
+                exportStatus.textContent = "Pilih rentang tanggal terlebih dahulu!";
+                exportStatus.className = 'export-status error';
+                exportStatus.style.display = 'block';
+                return;
+            }
+            
+            // Filter data berdasarkan rentang tanggal
+            const filteredPresences = allPresences.filter(presence => {
+                const presenceDate = new Date(presence.date);
+                const start = new Date(startDate);
+                const end = new Date(endDate);
+                return presenceDate >= start && presenceDate <= end;
+            });
+            
+            if (filteredPresences.length === 0) {
+                exportStatus.textContent = "Tidak ada data presensi pada rentang tanggal tersebut!";
+                exportStatus.className = 'export-status error';
+                exportStatus.style.display = 'block';
+                return;
+            }
+            
+            // Siapkan data untuk Excel
+            const excelData = [
+                ["Nama Guru", "Kelas", "Tanggal", "Waktu", "Mata Pelajaran"]
+            ];
+            
+            filteredPresences.forEach(presence => {
+                const teacher = teachers.find(t => t.id === presence.teacherId);
+                const subjects = teacher ? teacher.subjects.join(", ") : "Tidak diketahui";
+                
+                excelData.push([
+                    presence.teacherName,
+                    presence.classroom,
+                    presence.date,
+                    presence.time,
+                    subjects
+                ]);
+            });
+            
+            // Buat worksheet
+            const ws = XLSX.utils.aoa_to_sheet(excelData);
+            
+            // Buat workbook
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Presensi Guru");
+            
+            // Export ke Excel
             const today = new Date();
             const formattedDate = today.toISOString().split('T')[0];
-            const filename = `presensi_guru_${formattedDate}.json`;
+            XLSX.writeFile(wb, `presensi_guru_${formattedDate}.xlsx`);
             
-            const data = {
-                teachers: teachers,
-                presences: allPresences,
-                generatedAt: new Date().toISOString()
-            };
-            
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            exportStatus.textContent = `Data berhasil diexport! ${filteredPresences.length} presensi ditemukan.`;
+            exportStatus.className = 'export-status success';
+            exportStatus.style.display = 'block';
         }
         
         // Inisialisasi aplikasi
@@ -1358,7 +1583,13 @@
             setInterval(updateDateTime, 1000);
             updateDateTime();
             
-            // Isi dropdown guru
+            // Isi dropdown guru - tambahkan admin sebagai pilihan pertama
+            const adminOption = document.createElement('option');
+            adminOption.value = "Admin";
+            adminOption.textContent = "Admin";
+            teacherSelect.appendChild(adminOption);
+            
+            // Isi dropdown dengan daftar guru
             teachers.forEach(teacher => {
                 const option = document.createElement('option');
                 option.value = teacher.name;
@@ -1367,11 +1598,30 @@
                 teacherSelect.appendChild(option);
             });
             
+            // Isi dropdown kelas untuk QR Generator
+            classrooms.forEach(classroom => {
+                const option = document.createElement('option');
+                option.value = classroom;
+                option.textContent = classroom;
+                classroomSelect.appendChild(option);
+            });
+            
+            // Set tanggal untuk export Excel (default: hari ini)
+            const today = new Date();
+            startDateInput.value = today.toISOString().split('T')[0];
+            endDateInput.value = today.toISOString().split('T')[0];
+            
             // Tambahkan event listener untuk dropdown guru
             teacherSelect.addEventListener('change', function() {
                 const selectedOption = this.options[this.selectedIndex];
-                if (selectedOption.dataset.nik) {
+                if (selectedOption.value === "Admin") {
+                    // Untuk admin, kosongkan password
+                    passwordInput.value = '';
+                    passwordInput.placeholder = "Masukkan password admin";
+                } else if (selectedOption.dataset.nik) {
+                    // Untuk guru, isi password dengan NIK
                     passwordInput.value = selectedOption.dataset.nik;
+                    passwordInput.placeholder = "Password (NIK)";
                 } else {
                     passwordInput.value = '';
                 }
@@ -1389,35 +1639,42 @@
                 }
                 
                 // Cek jika login sebagai admin
-                if (teacherName.toLowerCase() === "admin" && password === ADMIN_NIK) {
-                    currentTeacher = {
-                        id: 0,
-                        name: "Admin",
-                        nik: ADMIN_NIK,
-                        subjects: ["Administrator"]
-                    };
-                    
-                    // Load semua presensi dari localStorage
-                    loadPresencesFromLocalStorage();
-                    
-                    // Update UI
-                    updateProfile();
-                    
-                    // Tampilkan tombol admin
-                    adminBtn.style.display = 'block';
-                    
-                    // Sembunyikan login page, tampilkan aplikasi
-                    loginPage.style.display = 'none';
-                    appContainer.style.display = 'block';
-                    
-                    // Buka halaman dashboard
-                    dashboardBtn.click();
-                    
-                    // Reset form login
-                    teacherSelect.value = '';
-                    passwordInput.value = '';
-                    loginError.style.display = 'none';
-                    return;
+                if (teacherName === "Admin") {
+                    if (password === ADMIN_NIK) {
+                        // Login admin berhasil
+                        currentTeacher = {
+                            id: 0,
+                            name: "Admin",
+                            nik: ADMIN_NIK,
+                            subjects: ["Administrator"]
+                        };
+                        
+                        // Load semua presensi dari localStorage
+                        loadPresencesFromLocalStorage();
+                        
+                        // Update UI
+                        updateProfile();
+                        
+                        // Tampilkan tombol admin
+                        adminBtn.style.display = 'block';
+                        
+                        // Sembunyikan login page, tampilkan aplikasi
+                        loginPage.style.display = 'none';
+                        appContainer.style.display = 'block';
+                        
+                        // Buka halaman dashboard
+                        dashboardBtn.click();
+                        
+                        // Reset form login
+                        teacherSelect.value = '';
+                        passwordInput.value = '';
+                        loginError.style.display = 'none';
+                        return;
+                    } else {
+                        loginError.textContent = "Password admin salah!";
+                        loginError.style.display = 'block';
+                        return;
+                    }
                 }
                 
                 // Cari guru yang sesuai
@@ -1476,7 +1733,20 @@
                 updateAdminPresenceList(todayPresences);
             });
             
-            exportBtn.addEventListener('click', exportData);
+            // Event listener untuk QR Generator
+            generateQrBtn.addEventListener('click', function() {
+                const selectedClassroom = classroomSelect.value;
+                if (!selectedClassroom) {
+                    alert("Pilih kelas terlebih dahulu!");
+                    return;
+                }
+                generateQRCode(selectedClassroom);
+            });
+            
+            downloadQrBtn.addEventListener('click', downloadQRCode);
+            
+            // Event listener untuk export Excel
+            generateExcelBtn.addEventListener('click', exportToExcel);
         }
         
         // Jalankan aplikasi saat halaman dimuat
