@@ -993,8 +993,7 @@
         let allPresences = [];
         const ADMIN_NIK = "admin123";
         
-        // URL Google Apps Script (GANTI DENGAN URL ANDA)
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw47w44XXwvUvafXqpKQ6R2YD9KVysoDJGIkWcQKHeiiv26eGGPHK9WGz34PPzE03Hzdg/exec";
+        
         
         // Data guru (40 guru dengan 1-3 mata pelajaran)
         const teachers = [
@@ -1105,31 +1104,31 @@
         const generateExcelBtn = document.getElementById('generate-excel-btn');
         const exportStatus = document.getElementById('export-status');
 
-        // Fungsi untuk mengirim data ke Google Sheets
-        async function sendToGoogleSheets(presenceRecord) {
-            try {
-                const response = await fetch(GOOGLE_SCRIPT_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        action: "addPresence",
-                        teacherName: presenceRecord.teacherName,
-                        teacherId: presenceRecord.teacherId,
-                        classroom: presenceRecord.classroom,
-                        date: presenceRecord.date,
-                        time: presenceRecord.time,
-                        subjects: presenceRecord.subjects
-                    })
-                });
-                
-                const result = await response.json();
-                console.log('Data terkirim ke Google Sheets:', result);
-            } catch (error) {
-                console.error('Gagal mengirim ke Google Sheets:', error);
+       // Fungsi untuk mengirim data presensi ke Google Sheets
+async function sendToGoogleSheets(presenceRecord) {
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbwtJqVLuMkDOQVsWwKr30VDglAJo5bLp4TdcCjIYzL2hHlVyE82LMFcJ5kTfsN6W5WWxw/exec'; // Ganti dengan URL Apps Script Anda
+
+    try {
+        const response = await fetch(scriptURL, {
+            method: 'POST',
+            body: JSON.stringify({
+                teacherName: presenceRecord.teacherName,
+                classroom: presenceRecord.classroom,
+                date: presenceRecord.date,
+                time: presenceRecord.time,
+                subjects: presenceRecord.subjects
+            }),
+            headers: {
+                'Content-Type': 'application/json'
             }
-        }
+        });
+        
+        const result = await response.json();
+        console.log('Google Sheets response:', result);
+    } catch (error) {
+        console.error('Error sending to Google Sheets:', error);
+    }
+}
         
         // Format tanggal dan waktu
         function formatDateTime(date) {
