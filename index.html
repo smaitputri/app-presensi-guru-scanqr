@@ -327,6 +327,10 @@
             max-width: 100%;
         }
         
+        .notification.error {
+            background: var(--danger);
+        }
+        
         .notification.show {
             transform: translateY(0);
             opacity: 1;
@@ -980,12 +984,8 @@
         </div>
     </div>
     
-    <footer>
-        <p>Aplikasi Presensi Guru dengan Scan QR Code &copy; 2023 | Dibuat untuk memudahkan proses presensi di sekolah</p>
-    </footer>
-    
     <script>
-         // Inisialisasi variabel
+        // Inisialisasi variabel
         let videoStream = null;
         let scanning = false;
         let currentTeacher = null;
@@ -993,7 +993,8 @@
         let allPresences = [];
         const ADMIN_NIK = "admin123";
         
-        
+        // URL Google Apps Script (Ganti dengan URL deployment Anda)
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzf2mkCb09vj0LPBWjEo_jmKy-naHDt5YRxGB0WABzUnD-DExE_EPnf25QTaydNT6oP2Q/exec";
         
         // Data guru (40 guru dengan 1-3 mata pelajaran)
         const teachers = [
@@ -1103,32 +1104,32 @@
         const endDateInput = document.getElementById('end-date');
         const generateExcelBtn = document.getElementById('generate-excel-btn');
         const exportStatus = document.getElementById('export-status');
-
-       // Fungsi untuk mengirim data presensi ke Google Sheets
-async function sendToGoogleSheets(presenceRecord) {
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbwtJqVLuMkDOQVsWwKr30VDglAJo5bLp4TdcCjIYzL2hHlVyE82LMFcJ5kTfsN6W5WWxw/exec'; // Ganti dengan URL Apps Script Anda
-
-    try {
-        const response = await fetch(scriptURL, {
-            method: 'POST',
-            body: JSON.stringify({
-                teacherName: presenceRecord.teacherName,
-                classroom: presenceRecord.classroom,
-                date: presenceRecord.date,
-                time: presenceRecord.time,
-                subjects: presenceRecord.subjects
-            }),
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
         
-        const result = await response.json();
-        console.log('Google Sheets response:', result);
-    } catch (error) {
-        console.error('Error sending to Google Sheets:', error);
-    }
-}
+        // Fungsi untuk mengirim data presensi ke Google Sheets
+        async function sendToGoogleSheets(presenceRecord) {
+            try {
+                // Menggunakan FormData untuk mengirim data
+                const formData = new FormData();
+                formData.append('teacher', presenceRecord.teacherName);
+                formData.append('classroom', presenceRecord.classroom);
+                formData.append('date', presenceRecord.date);
+                formData.append('time', presenceRecord.time);
+                formData.append('subjects', presenceRecord.subjects);
+                
+                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.text();
+                console.log('Google Sheets response:', result);
+                return true;
+            } catch (error) {
+                console.error('Error sending to Google Sheets:', error);
+                showNotification(`Gagal mengirim data: ${error.message}`, true);
+                return false;
+            }
+        }
         
         // Format tanggal dan waktu
         function formatDateTime(date) {
@@ -1147,6 +1148,24 @@ async function sendToGoogleSheets(presenceRecord) {
             return `${dayName}, ${day} ${month} ${year} - ${hours}:${minutes}:${seconds}`;
         }
         
+        // Format tanggal untuk presensi
+        function formatDate(date) {
+            return date.toLocaleDateString('id-ID', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+        }
+        
+        // Format waktu untuk presensi
+        function formatTime(date) {
+            return date.toLocaleTimeString('id-ID', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+        }
+        
         // Update waktu secara real-time
         function updateDateTime() {
             const now = new Date();
@@ -1154,9 +1173,22 @@ async function sendToGoogleSheets(presenceRecord) {
         }
         
         // Tampilkan notifikasi
-        function showNotification(teacherName, classroom, time) {
+        function showNotification(message, isError = false) {
+            const titleElement = notification.querySelector('.title');
             const messageElement = notification.querySelector('.message');
-            messageElement.textContent = `${teacherName} terekam di ${classroom} pukul ${time}`;
+            const iconElement = notification.querySelector('i');
+            
+            if (isError) {
+                notification.classList.add('error');
+                titleElement.textContent = "Error!";
+                iconElement.className = "fas fa-exclamation-triangle";
+            } else {
+                notification.classList.remove('error');
+                titleElement.textContent = "Presensi Terekam!";
+                iconElement.className = "fas fa-bell";
+            }
+            
+            messageElement.textContent = message;
             
             notification.classList.add('show');
             
@@ -1166,10 +1198,10 @@ async function sendToGoogleSheets(presenceRecord) {
         }
         
         // Tambahkan presensi ke daftar
-        function addPresenceRecord(teacher, classroom) {
+        async function addPresenceRecord(teacher, classroom) {
             const now = new Date();
-            const timeString = now.toLocaleTimeString();
-            const dateString = now.toLocaleDateString();
+            const dateString = formatDate(now);
+            const timeString = formatTime(now);
             
             // Buat record presensi
             const presenceRecord = {
@@ -1179,7 +1211,7 @@ async function sendToGoogleSheets(presenceRecord) {
                 date: dateString,
                 time: timeString,
                 timestamp: now.getTime(),
-                subjects: teacher.subjects.join(", ") // Tambahkan mata pelajaran
+                subjects: teacher.subjects.join(", ")
             };
             
             // Simpan ke array guru
@@ -1192,7 +1224,7 @@ async function sendToGoogleSheets(presenceRecord) {
             savePresencesToLocalStorage();
             
             // Kirim ke Google Sheets
-            sendToGoogleSheets(presenceRecord);
+            const success = await sendToGoogleSheets(presenceRecord);
             
             // Update tampilan
             updatePresenceList();
@@ -1205,7 +1237,9 @@ async function sendToGoogleSheets(presenceRecord) {
             }
             
             // Tampilkan notifikasi
-            showNotification(teacher.name, classroom, timeString);
+            if (success) {
+                showNotification(`${teacher.name} terekam di ${classroom} pukul ${timeString}`);
+            }
         }
         
         // Update daftar presensi
@@ -1248,7 +1282,7 @@ async function sendToGoogleSheets(presenceRecord) {
         function updateStats() {
             if (!currentTeacher) return;
             
-            const today = new Date().toLocaleDateString();
+            const today = formatDate(new Date());
             
             // Hitung presensi hari ini
             const todayPresences = teacherPresences.filter(p => p.date === today && p.teacherId === currentTeacher.id);
@@ -1485,7 +1519,7 @@ async function sendToGoogleSheets(presenceRecord) {
         
         // Update statistik admin
         function updateAdminStats() {
-            const today = new Date().toLocaleDateString();
+            const today = formatDate(new Date());
             
             // Hitung guru yang hadir hari ini
             const todayPresences = allPresences.filter(p => p.date === today);
@@ -1561,7 +1595,7 @@ async function sendToGoogleSheets(presenceRecord) {
             
             // Filter data berdasarkan rentang tanggal
             const filteredPresences = allPresences.filter(presence => {
-                const presenceDate = new Date(presence.date);
+                const presenceDate = new Date(presence.date.split('/').reverse().join('-'));
                 const start = new Date(startDate);
                 const end = new Date(endDate);
                 return presenceDate >= start && presenceDate <= end;
@@ -1760,7 +1794,7 @@ async function sendToGoogleSheets(presenceRecord) {
             });
             
             viewTodayBtn.addEventListener('click', function() {
-                const today = new Date().toLocaleDateString();
+                const today = formatDate(new Date());
                 const todayPresences = allPresences.filter(p => p.date === today);
                 updateAdminPresenceList(todayPresences);
             });
