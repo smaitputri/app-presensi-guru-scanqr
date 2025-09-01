@@ -3,1820 +3,693 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Presensi Guru - Admin</title>
+    <title>Admin Panel - Sistem Presensi Guru</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
-    <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
         :root {
-            --primary: #3498db;
-            --secondary: #2c3e50;
-            --success: #2ecc71;
-            --warning: #f39c12;
-            --danger: #e74c3c;
-            --light: #ecf0f1;
-            --dark: #34495e;
-            --admin: #9b59b6;
+            --primary: #4A6FC3;
+            --primary-light: #6B93E6;
+            --primary-dark: #3A5AA0;
+            --secondary: #FF7B54;
+            --accent: #7FB77E;
+            --success: #5CB85C;
+            --background-color: #f8f9fe;
+            --card-background: #ffffff;
+            --text-primary: #2D3748;
+            --text-secondary: #718096;
+            --border-color: #E2E8F0;
+            --table-header-bg: #EDF2F7;
+            --table-hover: #F7FAFC;
+            --table-stripe: #F9FAFB;
         }
-        
+
         body {
-            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
-            color: white;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background-color);
             min-height: 100vh;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
         }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            width: 100%;
-            padding: 0 15px;
-        }
-        
-        header {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            padding: 15px 0;
-            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
-            margin-bottom: 20px;
-        }
-        
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 10px;
-        }
-        
-        .logo i {
-            font-size: 2rem;
-            color: var(--primary);
-        }
-        
-        .logo h1 {
-            font-size: 1.5rem;
-        }
-        
-        .datetime h2 {
-            font-size: 1rem;
-        }
-        
-        .main-content {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        
-        .scanner-section, 
-        .dashboard-section,
-        .profile-section,
-        .admin-section {
-            background: rgba(44, 62, 80, 0.85);
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-            width: 100%;
-        }
-        
-        .section-title {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid var(--primary);
-        }
-        
-        .section-title i {
-            font-size: 1.2rem;
-            color: var(--primary);
-        }
-        
-        .section-title h2 {
-            font-size: 1.2rem;
-        }
-        
-        .scanner-container {
-            position: relative;
-            width: 100%;
-            max-width: 400px;
-            margin: 0 auto;
-            aspect-ratio: 1;
-            background-color: #000;
-            border-radius: 10px;
-            overflow: hidden;
-            margin-bottom: 20px;
-        }
-        
-        #video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .scanner-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(0deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.7) 100%);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            text-align: center;
-            padding: 15px;
-        }
-        
-        .scanner-overlay i {
-            font-size: 3rem;
-            margin-bottom: 15px;
-            color: var(--primary);
-        }
-        
-        .scanner-overlay p {
-            font-size: 0.9rem;
-        }
-        
-        .scanner-controls {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 15px;
-            flex-wrap: wrap;
-        }
-        
-        .btn {
-            padding: 10px 20px;
-            border-radius: 50px;
-            border: none;
-            font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s ease;
-            font-size: 0.9rem;
-        }
-        
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-        }
-        
-        .btn-success {
-            background: var(--success);
-            color: white;
-        }
-        
-        .btn-danger {
-            background: var(--danger);
-            color: white;
-        }
-        
-        .btn-secondary {
-            background: var(--secondary);
-            color: white;
-        }
-        
-        .btn-admin {
-            background: var(--admin);
-            color: white;
-        }
-        
-        .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-        }
-        
-        .btn:active {
-            transform: translateY(0);
-        }
-        
-        .scanner-status {
-            background: rgba(0, 0, 0, 0.4);
-            padding: 12px;
-            border-radius: 10px;
-            margin-top: 15px;
-            text-align: center;
-            font-size: 0.9rem;
-        }
-        
-        .presence-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            max-height: 400px;
-            overflow-y: auto;
-            padding-right: 8px;
-        }
-        
-        .presence-card {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            padding: 15px;
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            animation: fadeIn 0.5s ease;
-            border-left: 5px solid var(--success);
-        }
-        
-        .presence-card.new {
-            border-left: 5px solid var(--warning);
-            background: rgba(243, 156, 18, 0.15);
-        }
-        
-        .presence-card .avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: var(--primary);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 1.5rem;
-            font-weight: bold;
-            flex-shrink: 0;
-        }
-        
-        .presence-card .info {
-            flex: 1;
-            min-width: 0;
-        }
-        
-        .presence-card .name {
-            font-weight: bold;
-            font-size: 1rem;
-            margin-bottom: 3px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        
-        .presence-card .details {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 0.8rem;
-            gap: 5px;
-        }
-        
-        .stats-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        
-        .stat-card {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            padding: 15px;
-            text-align: center;
-        }
-        
-        .stat-card i {
-            font-size: 1.5rem;
-        }
-        
-        .stat-card .label {
-            font-size: 0.9rem;
-            margin-top: 5px;
-        }
-        
-        .stat-card .number {
-            font-size: 1.8rem;
-            font-weight: bold;
-            margin: 8px 0;
-            color: var(--primary);
-        }
-        
-        .notification {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            left: 20px;
-            background: var(--success);
-            color: white;
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            z-index: 1000;
-            transform: translateY(100px);
-            opacity: 0;
-            transition: all 0.5s ease;
-            max-width: 100%;
-        }
-        
-        .notification.error {
-            background: var(--danger);
-        }
-        
-        .notification.show {
-            transform: translateY(0);
-            opacity: 1;
-        }
-        
-        .notification i {
-            font-size: 1.5rem;
-        }
-        
-        .notification .content .title {
-            font-weight: bold;
-            font-size: 1rem;
-            margin-bottom: 3px;
-        }
-        
-        .notification .content .message {
-            font-size: 0.9rem;
-        }
-        
-        .profile-card {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            padding: 20px;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        
-        .profile-avatar {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            background: var(--primary);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 2.5rem;
-            font-weight: bold;
-            margin: 0 auto 15px;
-        }
-        
-        .profile-name {
-            font-size: 1.3rem;
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
-        
-        .profile-nik {
-            font-size: 0.9rem;
-            margin-bottom: 15px;
-        }
-        
-        .profile-subjects h3 {
-            font-size: 1.1rem;
-            margin-bottom: 10px;
-        }
-        
-        .subject-badge {
-            display: inline-block;
-            background: rgba(52, 152, 219, 0.2);
-            padding: 4px 12px;
-            border-radius: 50px;
-            margin: 4px;
-            border: 1px solid var(--primary);
-            font-size: 0.9rem;
-        }
-        
-        .logout-btn {
-            margin-top: 15px;
-            width: 100%;
-        }
-        
-        .nav-buttons {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-        
-        .page {
-            display: none;
-        }
-        
-        .page.active {
-            display: block;
-        }
-        
-        /* Login Page */
+
+        /* Login Page Styles */
         .login-page {
-            display: flex;
-            justify-content: center;
-            align-items: center;
             min-height: 100vh;
-            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
         }
-        
+
         .login-container {
-            background: rgba(44, 62, 80, 0.95);
-            padding: 30px;
-            border-radius: 15px;
+            background: var(--card-background);
+            padding: 2.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
             width: 100%;
             max-width: 400px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
-            text-align: center;
         }
-        
+
         .login-logo {
-            font-size: 2.5rem;
-            color: var(--primary);
-            margin-bottom: 15px;
+            text-align: center;
+            margin-bottom: 2rem;
         }
-        
+
+        .login-logo i {
+            font-size: 3rem;
+            color: var(--primary-color);
+        }
+
         .login-title {
-            font-size: 1.5rem;
-            margin-bottom: 20px;
+            text-align: center;
+            margin-bottom: 2rem;
+            color: var(--text-primary);
+            font-weight: 600;
         }
-        
-        .login-form {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
+
+        .login-form .form-control {
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
         }
-        
-        .login-form input, .login-form select {
-            padding: 12px;
-            border-radius: 5px;
-            border: none;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            font-size: 0.9rem;
-        }
-        
-        .login-form button {
-            padding: 12px;
-            border-radius: 5px;
-            border: none;
+
+        .login-btn {
+            width: 100%;
+            padding: 0.75rem;
             background: var(--primary);
+            border: none;
+            border-radius: 0.5rem;
             color: white;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
+            font-weight: 600;
             transition: all 0.3s ease;
         }
-        
-        .login-form button:hover {
-            background: #2980b9;
+
+        .login-btn:hover {
+            background: var(--primary-light);
+            transform: translateY(-2px);
         }
-        
-        .login-error {
-            color: var(--danger);
-            margin-bottom: 10px;
+
+        /* Dashboard Styles */
+        .dashboard {
             display: none;
+            padding: 2rem;
+        }
+
+        .navbar {
+            background: var(--card-background);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-brand {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+
+
+        .table-card {
+            background: var(--card-background);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            box-shadow: 0 10px 25px rgba(74, 111, 195, 0.1);
+            margin-top: 2rem;
+            border: 1px solid rgba(74, 111, 195, 0.1);
+        }
+
+        .table-card .card-title {
+            color: var(--primary);
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+
+        .dataTables_wrapper .table {
+            margin-top: 1.5rem;
+            border-collapse: separate;
+            border-spacing: 0 0.5rem;
+        }
+
+        .table thead th {
+            background: var(--table-header-bg);
+            color: var(--primary);
+            font-weight: 600;
+            border: none;
+            padding: 1rem 1.5rem;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.05em;
+        }
+
+        .table thead th:first-child {
+            border-top-left-radius: 0.75rem;
+            border-bottom-left-radius: 0.75rem;
+        }
+
+        .table thead th:last-child {
+            border-top-right-radius: 0.75rem;
+            border-bottom-right-radius: 0.75rem;
+        }
+
+        .table tbody tr {
+            background: var(--card-background);
+            box-shadow: 0 2px 4px rgba(74, 111, 195, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .table tbody tr:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(74, 111, 195, 0.1);
+            background: var(--table-hover);
+        }
+
+        .table tbody td {
+            color: var(--text-primary);
+            vertical-align: middle;
+            padding: 1rem 1.5rem;
+            border: none;
+            background: inherit;
+            font-size: 0.95rem;
+        }
+
+        .table tbody td:first-child {
+            border-top-left-radius: 0.75rem;
+            border-bottom-left-radius: 0.75rem;
+        }
+
+        .table tbody td:last-child {
+            border-top-right-radius: 0.75rem;
+            border-bottom-right-radius: 0.75rem;
+        }
+
+        /* Table Styles */
+        .table {
+            border: none;
+        }
+
+        .table thead th {
+            border: none !important;
+        }
+
+        .table tbody tr {
+            border: none;
+        }
+
+        /* Hide DataTables elements */
+        .dataTables_length,
+        .dataTables_filter {
+            display: none !important;
+        }
+
+        /* Reduce row spacing */
+        .table tbody td {
+            padding: 0.5rem 1.5rem;
+        }
+
+        .table-responsive {
+            margin-bottom: 1rem;
+        }
+
+        /* Bottom Navbar Styles */
+        .navbar.fixed-bottom {
+            background: var(--card-background);
+            box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.1);
+            padding: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* Add padding to prevent content from being hidden behind fixed navbar */
+        .dashboard {
+            padding-bottom: 5rem !important;
+        }
+
+        /* DataTables Custom Styling */
+        .dataTables_wrapper .dataTables_length select {
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            padding: 0.4rem 2rem 0.4rem 1rem;
+            background-color: var(--card-background);
+            color: var(--text-primary);
+        }
+
+        .dataTables_wrapper .dataTables_filter input {
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            background-color: var(--card-background);
+            color: var(--text-primary);
+            width: 250px;
+        }
+
+        .dataTables_wrapper .dataTables_info {
+            color: var(--text-secondary);
             font-size: 0.9rem;
+            padding-top: 1rem;
         }
-        
-        /* Admin Page */
-        .admin-controls {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
+
+        .dataTables_wrapper .dataTables_paginate {
+            padding-top: 1rem;
         }
-        
-        .admin-presence-list {
-            max-height: 500px;
-            overflow-y: auto;
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button {
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            margin: 0 0.2rem;
+            border: none;
+            background: var(--table-header-bg);
+            color: var(--primary) !important;
         }
-        
-        .admin-presence-card {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 10px;
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current,
+        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+            background: var(--primary) !important;
+            color: white !important;
+            border: none;
         }
-        
-        .admin-presence-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-            flex-wrap: wrap;
-            gap: 5px;
+
+        /* Status Badges */
+        .status-badge {
+            padding: 0.4rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: inline-block;
         }
-        
-        .admin-presence-name {
-            font-weight: bold;
-            font-size: 1rem;
+
+        .status-badge.success {
+            background: rgba(127, 183, 126, 0.15);
+            color: var(--accent);
         }
-        
-        .admin-presence-class {
-            background: rgba(46, 204, 113, 0.2);
-            padding: 3px 8px;
-            border-radius: 10px;
-            font-size: 0.8rem;
+
+        .status-badge.pending {
+            background: rgba(255, 123, 84, 0.15);
+            color: var(--secondary);
         }
-        
-        .admin-presence-details {
-            display: flex;
-            justify-content: space-between;
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 0.8rem;
-            flex-wrap: wrap;
-            gap: 5px;
+
+        .badge {
+            padding: 0.5rem 0.75rem;
+            border-radius: 9999px;
+            font-weight: 500;
         }
-        
-        /* Scanner Animation */
-        .scanner-laser {
+
+        .logout-btn {
+            color: var(--danger-color);
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            color: #dc2626;
+        }
+
+        /* Marquee Animation Styles */
+        .marquee-container {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            padding: 0.8rem;
+            border-radius: 1rem;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(74, 111, 195, 0.1);
+        }
+
+        .marquee-container::before,
+        .marquee-container::after {
+            content: "";
             position: absolute;
             top: 0;
+            width: 100px;
+            height: 100%;
+            z-index: 2;
+        }
+
+        .marquee-container::before {
             left: 0;
+            background: linear-gradient(to right, var(--primary), transparent);
+        }
+
+        .marquee-container::after {
+            right: 0;
+            background: linear-gradient(to left, var(--primary), transparent);
+        }
+
+        .marquee-content {
             width: 100%;
-            height: 3px;
-            background: rgba(255, 0, 0, 0.5);
-            box-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
-            animation: scan 2s infinite linear;
-            z-index: 1;
-            display: none;
-        }
-        
-        /* Admin QR Generator */
-        .qr-generator-container {
-            margin: 20px 0;
-            background: rgba(255, 255, 255, 0.1);
-            padding: 20px;
-            border-radius: 10px;
-        }
-        
-        .qr-controls {
+            overflow: hidden;
             display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
         }
-        
-        .qr-preview {
-            text-align: center;
-            margin: 20px 0;
-            padding: 20px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 10px;
-            display: none;
+
+        .marquee-text {
+            display: inline-flex;
+            align-items: center;
+            color: white;
+            font-weight: 500;
+            font-size: 1.1rem;
+            white-space: nowrap;
+            animation: scrollText 50s linear infinite;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding-left: 100%;
+            margin-right: 2rem;
         }
-        
-        .qr-preview canvas {
-            background: white;
-            padding: 10px;
-            border-radius: 5px;
-            max-width: 100%;
+
+        .marquee-text img {
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
         }
-        
-        .qr-class-name {
-            font-weight: bold;
-            margin: 15px 0 5px;
-            color: var(--warning);
+
+        .marquee-text i {
+            color: var(--secondary);
             font-size: 1.2rem;
         }
-        
-        .qr-download-section {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 15px;
-        }
-        
-        /* Excel export section */
-        .excel-export-container {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 20px;
-        }
-        
-        .date-range-selector {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-bottom: 15px;
-        }
-        
-        .date-input {
-            padding: 10px;
-            border-radius: 5px;
-            border: none;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            flex: 1;
-            min-width: 150px;
-        }
-        
-        .export-status {
-            margin-top: 15px;
-            padding: 10px;
-            border-radius: 5px;
-            text-align: center;
-            display: none;
-        }
-        
-        .export-status.success {
-            background: rgba(46, 204, 113, 0.2);
-            border: 1px solid var(--success);
-            display: block;
-        }
-        
-        .export-status.error {
-            background: rgba(231, 76, 60, 0.2);
-            border: 1px solid var(--danger);
-            display: block;
-        }
-        
-        @keyframes scan {
+
+        @keyframes scrollText {
             0% {
-                top: 0;
-            }
-            50% {
-                top: 100%;
+                transform: translateX(0);
             }
             100% {
-                top: 0;
+                transform: translateX(-200%);
             }
         }
-        
-        /* Responsive Styles */
-        @media (min-width: 768px) {
-            header {
-                flex-direction: row;
-                justify-content: space-between;
-                text-align: left;
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .dashboard {
+                padding: 1rem;
             }
-            
-            .logo {
-                margin-bottom: 0;
-            }
-            
-            .logo i {
-                font-size: 2.5rem;
-            }
-            
-            .logo h1 {
-                font-size: 1.8rem;
-            }
-            
-            .datetime h2 {
-                font-size: 1.2rem;
-            }
-            
-            .main-content {
-                flex-direction: row;
-                flex-wrap: wrap;
-            }
-            
-            .scanner-section {
-                flex: 1;
-                min-width: 300px;
-            }
-            
-            .dashboard-section {
-                flex: 2;
-                min-width: 400px;
-            }
-            
-            .profile-section {
-                flex: 1;
-                min-width: 300px;
-            }
-            
-            .section-title h2 {
-                font-size: 1.4rem;
-            }
-            
-            .section-title i {
-                font-size: 1.5rem;
-            }
-            
-            .btn {
-                padding: 12px 25px;
-                font-size: 1rem;
-            }
-            
-            .notification {
-                left: auto;
-                right: 30px;
-                max-width: 350px;
-            }
-            
-            .nav-buttons {
-                justify-content: flex-start;
-            }
-        }
-        
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
+
+            .stat-card {
+                margin-bottom: 1rem;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Halaman Login -->
+    <!-- Login Page -->
     <div id="login-page" class="login-page">
         <div class="login-container">
-            <div class="login-logo">
-                <i class="fas fa-chalkboard-teacher"></i>
-            </div>
-            <h1 class="login-title">Login Presensi Guru</h1>
-            
-            <div class="login-form">
-                <select id="teacher-select" required>
-                    <option value="">Pilih Nama Guru</option>
-                    <!-- Daftar guru akan diisi secara dinamis -->
-                </select>
-                <input type="password" id="password" placeholder="Password" autocomplete="off">
-                <button id="login-btn">Masuk</button>
-                <p id="login-error" class="login-error">Nama guru atau password salah!</p>
-            </div>
+            <!-- <div class="login-logo">
+                <i class="fas fa-user-shield"></i>
+            </div> -->
+            <h2 class="login-title">Admin Presensi Pergantian jam</h2>
+            <form class="login-form" id="login-form">
+                <input type="text" class="form-control" id="username" placeholder="Username" required>
+                <input type="password" class="form-control" id="password" placeholder="Password" required>
+                <button type="submit" class="login-btn">Masuk</button>
+                <div class="alert alert-danger mt-3 d-none" id="login-error"></div>
+            </form>
         </div>
     </div>
-    
-    <!-- Halaman Aplikasi (Awalnya tersembunyi) -->
-    <div id="app-container" class="container" style="display: none;">
-        <header>
-            <div class="logo">
-                <i class="fas fa-chalkboard-teacher"></i>
-                <h1>Presensi Guru</h1>
-            </div>
-            <div class="datetime">
-                <h2 id="current-date-time">Rabu, 9 Agustus 2023 - 14:30:45</h2>
-            </div>
-        </header>
-        
-        <div class="nav-buttons">
-            <button id="scanner-btn" class="btn btn-primary">
-                <i class="fas fa-qrcode"></i> Scanner Presensi
-            </button>
-            <button id="dashboard-btn" class="btn btn-secondary">
-                <i class="fas fa-tachometer-alt"></i> Dashboard
-            </button>
-            <button id="profile-btn" class="btn btn-secondary">
-                <i class="fas fa-user"></i> Profil
-            </button>
-            <button id="admin-btn" class="btn btn-admin" style="display: none;">
-                <i class="fas fa-user-shield"></i> Admin
-            </button>
-        </div>
-        
-        <!-- Halaman Scanner -->
-        <div id="scanner-page" class="page active">
-            <div class="scanner-section">
-                <div class="section-title">
-                    <i class="fas fa-qrcode"></i>
-                    <h2>Scan QR Code Kelas</h2>
+
+    <!-- Dashboard -->
+    <div id="dashboard" class="dashboard">
+        <!-- Scrolling Text -->
+        <div class="marquee-container mb-4">
+            <div class="marquee-content">
+                <div class="marquee-text">
+                    <img src="image/logo1.png" alt="Logo Sekolah" class="img-fluid me-3" style="max-height: 40px;">
+                    Data Presensi Pergantian Jam SMA IT Putri Abu Hurairah Mataram
+                    <i class="fas fa-clock ms-2"></i>
                 </div>
-                
-                <div class="scanner-container">
-                    <video id="video" playsinline></video>
-                    <div class="scanner-laser" id="scanner-laser"></div>
-                    <div class="scanner-overlay">
-                        <i class="fas fa-camera"></i>
-                        <p>Arahkan kamera ke QR Code yang ada di kelas</p>
-                        <p class="scanner-hint">Pastikan QR code berada dalam area kotak</p>
-                    </div>
-                </div>
-                
-                <div class="scanner-controls">
-                    <button id="start-btn" class="btn btn-primary">
-                        <i class="fas fa-play"></i> Mulai Scan
-                    </button>
-                    <button id="stop-btn" class="btn btn-danger" disabled>
-                        <i class="fas fa-stop"></i> Stop
-                    </button>
-                </div>
-                
-                <div class="scanner-status">
-                    <p id="scanner-message">Kamera belum diaktifkan. Klik "Mulai Scan" untuk memulai.</p>
+                <div class="marquee-text" aria-hidden="true">
+                    <img src="image/logo1.png" alt="Logo Sekolah" class="img-fluid me-3" style="max-height: 40px;">
+                    Data Presensi Pergantian Jam SMA IT Putri Abu Hurairah Mataram
+                    <!-- <i class="fas fa-clock ms-2"></i> -->
                 </div>
             </div>
         </div>
-        
-        <!-- Halaman Dashboard -->
-        <div id="dashboard-page" class="page">
-            <div class="dashboard-section">
-                <div class="section-title">
-                    <i class="fas fa-tachometer-alt"></i>
-                    <h2>Dashboard Presensi</h2>
-                </div>
-                
-                <div class="stats-container">
-                    <div class="stat-card">
-                        <i class="fas fa-user-check"></i>
-                        <div class="label">Presensi Hari Ini</div>
-                        <div class="number" id="today-presence">0</div>
-                    </div>
-                    <div class="stat-card">
-                        <i class="fas fa-chalkboard"></i>
-                        <div class="label">Kelas Diajar</div>
-                        <div class="number" id="classes-taught">0</div>
-                    </div>
-                    <div class="stat-card">
-                        <i class="fas fa-clock"></i>
-                        <div class="label">Jam Mengajar</div>
-                        <div class="number" id="teaching-hours">0</div>
-                    </div>
-                </div>
+
+        <!-- Table Card -->
+        <div class="table-card">
+            <div class="table-responsive">
+                <table id="presence-table" class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Nama Guru</th>
+                            <th>Kelas</th>
+                            <th>Hari</th>
+                            <th>Tanggal</th>
+                            <th>Waktu</th>
+                            <th>Mata Pelajaran</th>
+                            <th>Jam ke</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
             </div>
-            
-            <div class="dashboard-section">
-                <div class="section-title">
-                    <i class="fas fa-history"></i>
-                    <h2>Riwayat Presensi Terakhir</h2>
-                </div>
-                
-                <div class="presence-list" id="presence-list">
-                    <!-- Presence records will be added here dynamically -->
-                </div>
+            <div class="d-flex justify-content-end mt-4 gap-2">
+                <button class="btn btn-light-primary" id="refresh-btn">
+                    <i class="fas fa-sync-alt me-2"></i>Refresh Data
+                </button>
+                <button class="btn btn-primary" id="export-btn">
+                    <i class="fas fa-file-excel me-2"></i>Export Excel
+                </button>
             </div>
+            <style>
+                .btn-primary {
+                    background: var(--primary);
+                    border-color: var(--primary);
+                    color: white;
+                    padding: 0.6rem 1.2rem;
+                    border-radius: 0.5rem;
+                    font-weight: 500;
+                    transition: all 0.3s ease;
+                }
+                .btn-primary:hover {
+                    background: var(--primary-light);
+                    border-color: var(--primary-light);
+                    transform: translateY(-2px);
+                }
+                .btn-light-primary {
+                    background: rgba(74, 111, 195, 0.1);
+                    border: none;
+                    color: var(--primary);
+                    padding: 0.6rem 1.2rem;
+                    border-radius: 0.5rem;
+                    font-weight: 500;
+                    transition: all 0.3s ease;
+                }
+                .btn-light-primary:hover {
+                    background: rgba(74, 111, 195, 0.2);
+                    transform: translateY(-2px);
+                }
+                .gap-2 {
+                    gap: 0.5rem;
+                }
+            </style>
         </div>
-        
-        <!-- Halaman Profil -->
-        <div id="profile-page" class="page">
-            <div class="profile-section">
-                <div class="section-title">
-                    <i class="fas fa-user"></i>
-                    <h2>Profil Guru</h2>
-                </div>
-                
-                <div class="profile-card">
-                    <div class="profile-avatar" id="profile-avatar">A</div>
-                    <h2 class="profile-name" id="profile-name">Nama Guru</h2>
-                    <div id="profile-nik">NIK: 12345678</div>
-                    
-                    <div class="profile-subjects">
-                        <h3>Mata Pelajaran</h3>
-                        <div id="subject-badges">
-                            <!-- Subject badges will be added here -->
-                        </div>
-                    </div>
-                    
-                    <button id="logout-btn" class="btn btn-danger logout-btn">
-                        <i class="fas fa-sign-out-alt"></i> Keluar
-                    </button>
-                </div>
+
+        <!-- Bottom Navbar -->
+        <nav class="navbar fixed-bottom navbar-light">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">
+                    <i class="fas fa-user-shield me-2"></i>
+                    Admin
+                </a>
+                <button class="btn btn-link logout-btn ms-auto" id="logout-btn">
+                    <i class="fas fa-sign-out-alt me-2"></i>
+                    Keluar
+                </button>
             </div>
-        </div>
-        
-        <!-- Halaman Admin -->
-        <div id="admin-page" class="page">
-            <div class="admin-section">
-                <div class="section-title">
-                    <i class="fas fa-user-shield"></i>
-                    <h2>Admin Dashboard</h2>
-                </div>
-                
-                <div class="admin-controls">
-                    <button id="view-all-btn" class="btn btn-primary">
-                        <i class="fas fa-list"></i> Lihat Semua Presensi
-                    </button>
-                    <button id="view-today-btn" class="btn btn-success">
-                        <i class="fas fa-calendar-day"></i> Presensi Hari Ini
-                    </button>
-                    <button id="export-excel-btn" class="btn btn-secondary">
-                        <i class="fas fa-file-excel"></i> Export Excel
-                    </button>
-                </div>
-                
-                <div class="stats-container">
-                    <div class="stat-card">
-                        <i class="fas fa-users"></i>
-                        <div class="label">Total Guru</div>
-                        <div class="number" id="total-teachers">40</div>
-                    </div>
-                    <div class="stat-card">
-                        <i class="fas fa-user-check"></i>
-                        <div class="label">Hadir Hari Ini</div>
-                        <div class="number" id="present-today">0</div>
-                    </div>
-                    <div class="stat-card">
-                        <i class="fas fa-chalkboard-teacher"></i>
-                        <div class="label">Total Presensi</div>
-                        <div class="number" id="total-presence">0</div>
-                    </div>
-                </div>
-                
-                <div class="section-title">
-                    <i class="fas fa-history"></i>
-                    <h2>Daftar Presensi</h2>
-                </div>
-                
-                <div class="admin-presence-list" id="admin-presence-list">
-                    <!-- Admin presence records will be added here -->
-                </div>
-                
-                <!-- Section untuk Generate QR Code -->
-                <div class="qr-generator-container">
-                    <div class="section-title">
-                        <i class="fas fa-qrcode"></i>
-                        <h2>Generator QR Code Kelas</h2>
-                    </div>
-                    
-                    <div class="qr-controls">
-                        <select id="classroom-select" class="date-input">
-                            <option value="">Pilih Kelas</option>
-                            <!-- Options akan diisi secara dinamis -->
-                        </select>
-                        <button id="generate-qr-btn" class="btn btn-primary">
-                            <i class="fas fa-qrcode"></i> Generate QR
-                        </button>
-                    </div>
-                    
-                    <div class="qr-preview" id="qr-preview">
-                        <div class="qr-class-name" id="qr-class-name"></div>
-                        <canvas id="qr-canvas"></canvas>
-                        <div class="qr-download-section">
-                            <button id="download-qr-btn" class="btn btn-success">
-                                <i class="fas fa-download"></i> Download QR
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Section untuk Export Excel -->
-                <div class="excel-export-container">
-                    <div class="section-title">
-                        <i class="fas fa-file-excel"></i>
-                        <h2>Export Data Presensi</h2>
-                    </div>
-                    
-                    <div class="date-range-selector">
-                        <input type="date" id="start-date" class="date-input" placeholder="Tanggal Mulai">
-                        <input type="date" id="end-date" class="date-input" placeholder="Tanggal Akhir">
-                        <button id="generate-excel-btn" class="btn btn-success">
-                            <i class="fas fa-file-export"></i> Generate Excel
-                        </button>
-                    </div>
-                    
-                    <div class="export-status" id="export-status">
-                        Status export akan muncul di sini
-                    </div>
-                </div>
-            </div>
-        </div>
+        </nav>
     </div>
-    
-    <div class="notification" id="notification">
-        <i class="fas fa-bell"></i>
-        <div class="content">
-            <div class="title">Presensi Terekam!</div>
-            <div class="message">Bpk. Ahmad terekam di Kelas 7A pukul 14:25:30</div>
-        </div>
-    </div>
-    
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
     <script>
-        // Inisialisasi variabel
-        let videoStream = null;
-        let scanning = false;
-        let currentTeacher = null;
-        let teacherPresences = [];
-        let allPresences = [];
-        const ADMIN_NIK = "admin123";
-        
-        // URL Google Apps Script (Ganti dengan URL deployment Anda)
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzf2mkCb09vj0LPBWjEo_jmKy-naHDt5YRxGB0WABzUnD-DExE_EPnf25QTaydNT6oP2Q/exec";
-        
-        // Data guru (40 guru dengan 1-3 mata pelajaran)
-        const teachers = [
-            { id: 1, name: "Ahmad Surya", nik: "12345678", subjects: ["Matematika"] },
-            { id: 2, name: "Budi Santoso", nik: "23456789", subjects: ["Bahasa Indonesia"] },
-            { id: 3, name: "Citra Dewi", nik: "34567890", subjects: ["IPA", "Biologi"] },
-            { id: 4, name: "Dian Permata", nik: "45678901", subjects: ["IPS", "Sejarah"] },
-            { id: 5, name: "Eko Prasetyo", nik: "56789012", subjects: ["Bahasa Inggris"] },
-            { id: 6, name: "Fajar Nugroho", nik: "67890123", subjects: ["Pend. Agama"] },
-            { id: 7, name: "Gita Maharani", nik: "78901234", subjects: ["Seni Budaya"] },
-            { id: 8, name: "Hendra Setiawan", nik: "89012345", subjects: ["PJOK"] },
-            { id: 9, name: "Indah Puspita", nik: "90123456", subjects: ["Prakarya"] },
-            { id: 10, name: "Joko Susilo", nik: "01234567", subjects: ["Informatika"] },
-            { id: 11, name: "Kartika Sari", nik: "11223344", subjects: ["Bimbingan Konseling"] },
-            { id: 12, name: "Lukman Hakim", nik: "22334455", subjects: ["Sejarah"] },
-            { id: 13, name: "Maya Indah", nik: "33445566", subjects: ["Bahasa Jawa"] },
-            { id: 14, name: "Nur Hidayat", nik: "44556677", subjects: ["Pend. Pancasila"] },
-            { id: 15, name: "Oki Setiawan", nik: "55667788", subjects: ["Matematika"] },
-            { id: 16, name: "Putri Ayu", nik: "66778899", subjects: ["Bahasa Indonesia"] },
-            { id: 17, name: "Rudi Hartono", nik: "77889900", subjects: ["IPA", "Fisika"] },
-            { id: 18, name: "Sinta Dewi", nik: "88990011", subjects: ["IPS", "Geografi"] },
-            { id: 19, name: "Teguh Prakoso", nik: "99001122", subjects: ["Bahasa Inggris"] },
-            { id: 20, name: "Umar Said", nik: "00112233", subjects: ["Pend. Agama"] },
-            { id: 21, name: "Vina Melinda", nik: "11335577", subjects: ["Seni Budaya"] },
-            { id: 22, name: "Wahyu Adi", nik: "22446688", subjects: ["PJOK"] },
-            { id: 23, name: "Yuni Astuti", nik: "33557799", subjects: ["Prakarya"] },
-            { id: 24, name: "Zainal Abidin", nik: "44668800", subjects: ["Informatika"] },
-            { id: 25, name: "Agus Supriyanto", nik: "55779911", subjects: ["Bimbingan Konseling"] },
-            { id: 26, name: "Bayu Kurniawan", nik: "66880022", subjects: ["Sejarah"] },
-            { id: 27, name: "Cindy Permata", nik: "77991133", subjects: ["Bahasa Jawa"] },
-            { id: 28, name: "Dedi Susanto", nik: "88002244", subjects: ["Pend. Pancasila"] },
-            { id: 29, name: "Eka Putri", nik: "99113355", subjects: ["Matematika"] },
-            { id: 30, name: "Firman Syah", nik: "00224466", subjects: ["Bahasa Indonesia"] },
-            { id: 31, name: "Gunawan Wibowo", nik: "11336699", subjects: ["IPA", "Kimia"] },
-            { id: 32, name: "Hesti Rahayu", nik: "22447700", subjects: ["IPS", "Ekonomi"] },
-            { id: 33, name: "Irfan Maulana", nik: "33558811", subjects: ["Bahasa Inggris"] },
-            { id: 34, name: "Jihan Aulia", nik: "44669922", subjects: ["Pend. Agama"] },
-            { id: 35, name: "Krisna Wijaya", nik: "55770033", subjects: ["Seni Budaya"] },
-            { id: 36, name: "Lia Amelia", nik: "66881144", subjects: ["PJOK"] },
-            { id: 37, name: "Mochammad Ali", nik: "77992255", subjects: ["Prakarya"] },
-            { id: 38, name: "Nia Kurniasih", nik: "88003366", subjects: ["Informatika"] },
-            { id: 39, name: "Oscar Pratama", nik: "99114477", subjects: ["Bimbingan Konseling"] },
-            { id: 40, name: "Prita Widya", nik: "00225588", subjects: ["Sejarah"] }
-        ];
-        
-        // Data kelas
-        const classrooms = [
-            "KELAS-7A", "KELAS-7B", "KELAS-7C", "KELAS-7D",
-            "KELAS-8A", "KELAS-8B", "KELAS-8C", "KELAS-8D",
-            "KELAS-9A", "KELAS-9B", "KELAS-9C", "KELAS-9D"
-        ];
-        
+        // Constants
+        const ADMIN_USERNAME = 'adminsmaitputri';
+        const ADMIN_PASSWORD = 'admin123';
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz-rF5w1WHbKX3LTqemI9GpbiU4UJyaPcFTIinmFMCWSBDt9JKQ19RQiFV9tWqtDDyrVw/exec';
+
+        let presenceData = [];
+        let presenceTable;
+
         // DOM Elements
         const loginPage = document.getElementById('login-page');
-        const appContainer = document.getElementById('app-container');
-        const teacherSelect = document.getElementById('teacher-select');
-        const passwordInput = document.getElementById('password');
-        const loginBtn = document.getElementById('login-btn');
+        const loginForm = document.getElementById('login-form');
         const loginError = document.getElementById('login-error');
-        
-        const videoElement = document.getElementById('video');
-        const startBtn = document.getElementById('start-btn');
-        const stopBtn = document.getElementById('stop-btn');
-        const scannerMessage = document.getElementById('scanner-message');
-        const scannerLaser = document.getElementById('scanner-laser');
-        const presenceList = document.getElementById('presence-list');
-        const notification = document.getElementById('notification');
-        const todayPresenceElement = document.getElementById('today-presence');
-        const classesTaughtElement = document.getElementById('classes-taught');
-        const teachingHoursElement = document.getElementById('teaching-hours');
-        const currentDateTimeElement = document.getElementById('current-date-time');
-        
-        const profileAvatar = document.getElementById('profile-avatar');
-        const profileName = document.getElementById('profile-name');
-        const profileNik = document.getElementById('profile-nik');
-        const subjectBadges = document.getElementById('subject-badges');
+        const dashboard = document.getElementById('dashboard');
         const logoutBtn = document.getElementById('logout-btn');
-        
-        const scannerBtn = document.getElementById('scanner-btn');
-        const dashboardBtn = document.getElementById('dashboard-btn');
-        const profileBtn = document.getElementById('profile-btn');
-        const adminBtn = document.getElementById('admin-btn');
-        const scannerPage = document.getElementById('scanner-page');
-        const dashboardPage = document.getElementById('dashboard-page');
-        const profilePage = document.getElementById('profile-page');
-        const adminPage = document.getElementById('admin-page');
-        
-        // Admin elements
-        const viewAllBtn = document.getElementById('view-all-btn');
-        const viewTodayBtn = document.getElementById('view-today-btn');
-        const exportExcelBtn = document.getElementById('export-excel-btn');
-        const totalTeachersElement = document.getElementById('total-teachers');
-        const presentTodayElement = document.getElementById('present-today');
-        const totalPresenceElement = document.getElementById('total-presence');
-        const adminPresenceList = document.getElementById('admin-presence-list');
-        
-        // QR Generator elements
-        const classroomSelect = document.getElementById('classroom-select');
-        const generateQrBtn = document.getElementById('generate-qr-btn');
-        const qrPreview = document.getElementById('qr-preview');
-        const qrCanvas = document.getElementById('qr-canvas');
-        const qrClassName = document.getElementById('qr-class-name');
-        const downloadQrBtn = document.getElementById('download-qr-btn');
-        
-        // Excel Export elements
-        const startDateInput = document.getElementById('start-date');
-        const endDateInput = document.getElementById('end-date');
-        const generateExcelBtn = document.getElementById('generate-excel-btn');
-        const exportStatus = document.getElementById('export-status');
-        
-        // Fungsi untuk mengirim data presensi ke Google Sheets
-        async function sendToGoogleSheets(presenceRecord) {
-            try {
-                // Menggunakan FormData untuk mengirim data
-                const formData = new FormData();
-                formData.append('teacher', presenceRecord.teacherName);
-                formData.append('classroom', presenceRecord.classroom);
-                formData.append('date', presenceRecord.date);
-                formData.append('time', presenceRecord.time);
-                formData.append('subjects', presenceRecord.subjects);
-                
-                const response = await fetch(GOOGLE_SCRIPT_URL, {
-                    method: 'POST',
-                    body: formData
-                });
-                
-                const result = await response.text();
-                console.log('Google Sheets response:', result);
-                return true;
-            } catch (error) {
-                console.error('Error sending to Google Sheets:', error);
-                showNotification(`Gagal mengirim data: ${error.message}`, true);
-                return false;
-            }
-        }
-        
-        // Format tanggal dan waktu
-        function formatDateTime(date) {
-            const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-            const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-            
-            const dayName = days[date.getDay()];
-            const day = date.getDate();
-            const month = months[date.getMonth()];
-            const year = date.getFullYear();
-            
-            const hours = String(date.getHours()).padStart(2, '0');
-            const minutes = String(date.getMinutes()).padStart(2, '0');
-            const seconds = String(date.getSeconds()).padStart(2, '0');
-            
-            return `${dayName}, ${day} ${month} ${year} - ${hours}:${minutes}:${seconds}`;
-        }
-        
-        // Format tanggal untuk presensi
-        function formatDate(date) {
-            return date.toLocaleDateString('id-ID', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric'
-            });
-        }
-        
-        // Format waktu untuk presensi
-        function formatTime(date) {
-            return date.toLocaleTimeString('id-ID', {
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit'
-            });
-        }
-        
-        // Update waktu secara real-time
-        function updateDateTime() {
-            const now = new Date();
-            currentDateTimeElement.textContent = formatDateTime(now);
-        }
-        
-        // Tampilkan notifikasi
-        function showNotification(message, isError = false) {
-            const titleElement = notification.querySelector('.title');
-            const messageElement = notification.querySelector('.message');
-            const iconElement = notification.querySelector('i');
-            
-            if (isError) {
-                notification.classList.add('error');
-                titleElement.textContent = "Error!";
-                iconElement.className = "fas fa-exclamation-triangle";
-            } else {
-                notification.classList.remove('error');
-                titleElement.textContent = "Presensi Terekam!";
-                iconElement.className = "fas fa-bell";
-            }
-            
-            messageElement.textContent = message;
-            
-            notification.classList.add('show');
-            
-            setTimeout(() => {
-                notification.classList.remove('show');
-            }, 5000);
-        }
-        
-        // Tambahkan presensi ke daftar
-        async function addPresenceRecord(teacher, classroom) {
-            const now = new Date();
-            const dateString = formatDate(now);
-            const timeString = formatTime(now);
-            
-            // Buat record presensi
-            const presenceRecord = {
-                teacherId: teacher.id,
-                teacherName: teacher.name,
-                classroom: classroom,
-                date: dateString,
-                time: timeString,
-                timestamp: now.getTime(),
-                subjects: teacher.subjects.join(", ")
-            };
-            
-            // Simpan ke array guru
-            teacherPresences.unshift(presenceRecord);
-            
-            // Simpan ke array semua presensi
-            allPresences.unshift(presenceRecord);
-            
-            // Simpan ke localStorage
-            savePresencesToLocalStorage();
-            
-            // Kirim ke Google Sheets
-            const success = await sendToGoogleSheets(presenceRecord);
-            
-            // Update tampilan
-            updatePresenceList();
-            updateStats();
-            
-            // Update tampilan admin jika sedang aktif
-            if (adminPage.classList.contains('active')) {
-                updateAdminStats();
-                updateAdminPresenceList(allPresences);
-            }
-            
-            // Tampilkan notifikasi
-            if (success) {
-                showNotification(`${teacher.name} terekam di ${classroom} pukul ${timeString}`);
-            }
-        }
-        
-        // Update daftar presensi
-        function updatePresenceList() {
-            presenceList.innerHTML = '';
-            
-            // Tampilkan maksimal 10 presensi terbaru
-            const recentPresences = teacherPresences.slice(0, 10);
-            
-            recentPresences.forEach(presence => {
-                const presenceCard = document.createElement('div');
-                presenceCard.className = 'presence-card';
-                
-                // Jika presensi kurang dari 10 menit yang lalu, tambahkan class "new"
-                const now = new Date();
-                const presenceTime = new Date(presence.timestamp);
-                const minutesDiff = (now - presenceTime) / (1000 * 60);
-                
-                if (minutesDiff < 10) {
-                    presenceCard.classList.add('new');
-                }
-                
-                presenceCard.innerHTML = `
-                    <div class="avatar">${presence.teacherName.charAt(0)}</div>
-                    <div class="info">
-                        <div class="name">${presence.teacherName}</div>
-                        <div class="details">
-                            <div class="classroom">${presence.classroom}</div>
-                            <div class="date">${presence.date}</div>
-                            <div class="time">${presence.time}</div>
-                        </div>
-                    </div>
-                `;
-                
-                presenceList.appendChild(presenceCard);
-            });
-        }
-        
-        // Update statistik dashboard
-        function updateStats() {
-            if (!currentTeacher) return;
-            
-            const today = formatDate(new Date());
-            
-            // Hitung presensi hari ini
-            const todayPresences = teacherPresences.filter(p => p.date === today && p.teacherId === currentTeacher.id);
-            const todayClasses = [...new Set(todayPresences.map(p => p.classroom))];
-            
-            // Hitung jam mengajar (asumsi 2 jam per kelas)
-            const teachingHours = todayClasses.length * 2;
-            
-            todayPresenceElement.textContent = todayPresences.length;
-            classesTaughtElement.textContent = todayClasses.length;
-            teachingHoursElement.textContent = teachingHours;
-        }
-        
-        // Update profil guru
-        function updateProfile() {
-            if (!currentTeacher) return;
-            
-            profileAvatar.textContent = currentTeacher.name.charAt(0);
-            profileName.textContent = currentTeacher.name;
-            profileNik.textContent = `NIK: ${currentTeacher.nik}`;
-            
-            // Update mata pelajaran
-            subjectBadges.innerHTML = '';
-            currentTeacher.subjects.forEach(subject => {
-                const badge = document.createElement('span');
-                badge.className = 'subject-badge';
-                badge.textContent = subject;
-                subjectBadges.appendChild(badge);
-            });
-        }
-        
-        // Mulai scanning
-        startBtn.addEventListener('click', async () => {
-            try {
-                scannerMessage.textContent = "Mengakses kamera...";
-                
-                // Meminta izin untuk mengakses kamera
-                videoStream = await navigator.mediaDevices.getUserMedia({
-                    video: { 
-                        facingMode: "environment",
-                        width: { ideal: 1280 },
-                        height: { ideal: 720 }
+        const refreshBtn = document.getElementById('refresh-btn');
+        const exportBtn = document.getElementById('export-btn');
+
+        // Initialize DataTable
+        function initDataTable() {
+            presenceTable = $('#presence-table').DataTable({
+                responsive: true,
+                order: [[1, 'desc']],
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/id.json'
+                },
+                columnDefs: [
+                    {
+                        targets: 0,
+                        className: 'text-center'
                     }
-                });
-                
-                videoElement.srcObject = videoStream;
-                videoElement.play();
-                
-                startBtn.disabled = true;
-                stopBtn.disabled = false;
-                scanning = true;
-                scannerMessage.textContent = "Mengarahkan kamera ke QR Code...";
-                
-                // Tampilkan laser scanner
-                scannerLaser.style.display = 'block';
-                
-                // Memulai proses scanning
-                scanQRCode();
-            } catch (err) {
-                console.error("Error accessing camera: ", err);
-                scannerMessage.innerHTML = `<span style="color: #e74c3c;">Gagal mengakses kamera: ${err.message}</span>`;
-                startBtn.disabled = false;
-            }
-        });
-        
-        // Berhenti scanning
-        stopBtn.addEventListener('click', () => {
-            if (videoStream) {
-                videoStream.getTracks().forEach(track => track.stop());
-                videoStream = null;
-            }
-            
-            scanning = false;
-            startBtn.disabled = false;
-            stopBtn.disabled = true;
-            scannerMessage.textContent = "Scanning dihentikan. Klik 'Mulai Scan' untuk memulai kembali.";
-            scannerLaser.style.display = 'none';
-        });
-        
-        // Fungsi untuk scan QR code
-        function scanQRCode() {
-            if (!scanning) return;
-            
-            const canvasElement = document.createElement('canvas');
-            const canvas = canvasElement.getContext('2d');
-            
-            if (videoElement.readyState === videoElement.HAVE_ENOUGH_DATA) {
-                canvasElement.height = videoElement.videoHeight;
-                canvasElement.width = videoElement.videoWidth;
-                canvas.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
-                
-                const imageData = canvas.getImageData(0, 0, canvasElement.width, canvasElement.height);
-                const code = jsQR(imageData.data, imageData.width, imageData.height, {
-                    inversionAttempts: "dontInvert",
-                });
-                
-                if (code) {
-                    // QR ditemukan
-                    const classroom = code.data;
-                    
-                    // Cek apakah kelas valid
-                    if (classrooms.includes(classroom)) {
-                        // Tambahkan presensi untuk guru yang login
-                        addPresenceRecord(currentTeacher, classroom);
-                        
-                        // Tampilkan pesan sukses
-                        scannerMessage.innerHTML = `<span style="color: #2ecc71;">Presensi berhasil! ${currentTeacher.name} di ${classroom}</span>`;
-                        
-                        // Berhenti scanning sementara
-                        scanning = false;
-                        setTimeout(() => {
-                            scannerMessage.textContent = "Arahkan kamera ke QR Code berikutnya...";
-                            scanning = true;
-                            scanQRCode();
-                        }, 3000);
-                    } else {
-                        scannerMessage.innerHTML = `<span style="color: #e74c3c;">Kelas tidak dikenali: ${classroom}</span>`;
-                        requestAnimationFrame(scanQRCode);
-                    }
+                ]
+            });
+        }
+
+        // Fetch data from Google Sheets
+        async function fetchPresenceData() {
+            try {
+                const response = await fetch(`${GOOGLE_SCRIPT_URL}?action=get`);
+                const result = await response.json();
+
+                if (result.status === 'success' && Array.isArray(result.data)) {
+                    presenceData = result.data;
+                    updateDashboard();
+                    updateTable();
                 } else {
-                    requestAnimationFrame(scanQRCode);
+                    console.error('Error fetching data:', result);
+                    alert('Gagal mengambil data presensi');
                 }
-            } else {
-                requestAnimationFrame(scanQRCode);
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Gagal terhubung ke server');
             }
         }
-        
-        // Navigasi halaman
-        scannerBtn.addEventListener('click', function() {
-            scannerPage.classList.add('active');
-            dashboardPage.classList.remove('active');
-            profilePage.classList.remove('active');
-            adminPage.classList.remove('active');
-            scannerBtn.classList.remove('btn-secondary');
-            scannerBtn.classList.add('btn-primary');
-            dashboardBtn.classList.remove('btn-primary');
-            dashboardBtn.classList.add('btn-secondary');
-            profileBtn.classList.remove('btn-primary');
-            profileBtn.classList.add('btn-secondary');
-            adminBtn.classList.remove('btn-primary');
-            adminBtn.classList.add('btn-admin');
-        });
-        
-        dashboardBtn.addEventListener('click', function() {
-            scannerPage.classList.remove('active');
-            dashboardPage.classList.add('active');
-            profilePage.classList.remove('active');
-            adminPage.classList.remove('active');
-            scannerBtn.classList.remove('btn-primary');
-            scannerBtn.classList.add('btn-secondary');
-            dashboardBtn.classList.remove('btn-secondary');
-            dashboardBtn.classList.add('btn-primary');
-            profileBtn.classList.remove('btn-primary');
-            profileBtn.classList.add('btn-secondary');
-            adminBtn.classList.remove('btn-primary');
-            adminBtn.classList.add('btn-admin');
-            
-            // Update data saat membuka dashboard
-            updatePresenceList();
-            updateStats();
-        });
-        
-        profileBtn.addEventListener('click', function() {
-            scannerPage.classList.remove('active');
-            dashboardPage.classList.remove('active');
-            profilePage.classList.add('active');
-            adminPage.classList.remove('active');
-            scannerBtn.classList.remove('btn-primary');
-            scannerBtn.classList.add('btn-secondary');
-            dashboardBtn.classList.remove('btn-primary');
-            dashboardBtn.classList.add('btn-secondary');
-            profileBtn.classList.remove('btn-secondary');
-            profileBtn.classList.add('btn-primary');
-            adminBtn.classList.remove('btn-primary');
-            adminBtn.classList.add('btn-admin');
-        });
-        
-        adminBtn.addEventListener('click', function() {
-            scannerPage.classList.remove('active');
-            dashboardPage.classList.remove('active');
-            profilePage.classList.remove('active');
-            adminPage.classList.add('active');
-            scannerBtn.classList.remove('btn-primary');
-            scannerBtn.classList.add('btn-secondary');
-            dashboardBtn.classList.remove('btn-primary');
-            dashboardBtn.classList.add('btn-secondary');
-            profileBtn.classList.remove('btn-primary');
-            profileBtn.classList.add('btn-secondary');
-            adminBtn.classList.remove('btn-admin');
-            adminBtn.classList.add('btn-primary');
-            
-            // Update data admin
-            updateAdminStats();
-            updateAdminPresenceList(allPresences);
-        });
-        
-        // Fungsi logout
-        logoutBtn.addEventListener('click', function() {
-            currentTeacher = null;
-            teacherPresences = [];
-            
-            // Sembunyikan aplikasi, tampilkan login page
-            appContainer.style.display = 'none';
-            loginPage.style.display = 'flex';
-            
-            // Reset form login
-            teacherSelect.value = '';
-            passwordInput.value = '';
-            loginError.style.display = 'none';
-        });
-        
-        // Simpan presensi ke localStorage
-        function savePresencesToLocalStorage() {
-            if (currentTeacher) {
-                localStorage.setItem(`teacherPresences_${currentTeacher.id}`, JSON.stringify(teacherPresences));
-            }
-            localStorage.setItem('allPresences', JSON.stringify(allPresences));
+
+        // Update dashboard statistics
+        function updateDashboard() {
+            // Function kept for future use if needed
         }
-        
-        // Load presensi dari localStorage
-        function loadPresencesFromLocalStorage() {
-            if (currentTeacher) {
-                const savedPresences = localStorage.getItem(`teacherPresences_${currentTeacher.id}`);
-                if (savedPresences) {
-                    teacherPresences = JSON.parse(savedPresences);
+
+        // Update presence table
+        function updateTable() {
+            presenceTable.clear();
+
+            presenceData.forEach((record, index) => {
+                // Format tanggal to dd-mm-yyyy
+                let tanggal = '-';
+                if (record.Tanggal) {
+                    try {
+                        const date = new Date(record.Tanggal);
+                        if (!isNaN(date)) {
+                            const day = String(date.getDate()).padStart(2, '0');
+                            const month = String(date.getMonth() + 1).padStart(2, '0');
+                            const year = date.getFullYear();
+                            tanggal = `${day}-${month}-${year}`;
+                        }
+                    } catch (e) {
+                        console.error('Error parsing date:', e);
+                    }
                 }
-            }
-            
-            const savedAllPresences = localStorage.getItem('allPresences');
-            if (savedAllPresences) {
-                allPresences = JSON.parse(savedAllPresences);
-            }
-        }
-        
-        // Update statistik admin
-        function updateAdminStats() {
-            const today = formatDate(new Date());
-            
-            // Hitung guru yang hadir hari ini
-            const todayPresences = allPresences.filter(p => p.date === today);
-            const presentTeachers = [...new Set(todayPresences.map(p => p.teacherId))];
-            
-            totalTeachersElement.textContent = teachers.length;
-            presentTodayElement.textContent = presentTeachers.length;
-            totalPresenceElement.textContent = allPresences.length;
-        }
-        
-        // Update daftar presensi admin
-        function updateAdminPresenceList(presences) {
-            adminPresenceList.innerHTML = '';
-            
-            presences.forEach(presence => {
-                const presenceCard = document.createElement('div');
-                presenceCard.className = 'admin-presence-card';
                 
-                presenceCard.innerHTML = `
-                    <div class="admin-presence-header">
-                        <div class="admin-presence-name">${presence.teacherName}</div>
-                        <div class="admin-presence-class">${presence.classroom}</div>
-                    </div>
-                    <div class="admin-presence-details">
-                        <div>${presence.date}</div>
-                        <div>${presence.time}</div>
-                    </div>
-                `;
-                
-                adminPresenceList.appendChild(presenceCard);
-            });
-        }
-        
-        // Fungsi untuk generate QR Code
-        function generateQRCode(classroom) {
-            // Clear previous QR Code
-            qrPreview.style.display = 'block';
-            qrClassName.textContent = classroom;
-            
-            // Create QR Code
-            const qr = new QRCode(qrCanvas, {
-                text: classroom,
-                width: 256,
-                height: 256,
-                colorDark: "#000000",
-                colorLight: "#ffffff",
-                correctLevel: QRCode.CorrectLevel.H
-            });
-        }
-        
-        // Fungsi untuk download QR Code
-        function downloadQRCode() {
-            const link = document.createElement('a');
-            link.download = `${qrClassName.textContent}-presensi-qr.png`;
-            link.href = qrCanvas.toDataURL('image/png');
-            link.click();
-        }
-        
-        // Fungsi untuk export data presensi ke Excel
-        function exportToExcel() {
-            exportStatus.className = 'export-status';
-            exportStatus.style.display = 'none';
-            
-            const startDate = startDateInput.value;
-            const endDate = endDateInput.value;
-            
-            if (!startDate || !endDate) {
-                exportStatus.textContent = "Pilih rentang tanggal terlebih dahulu!";
-                exportStatus.className = 'export-status error';
-                exportStatus.style.display = 'block';
-                return;
-            }
-            
-            // Filter data berdasarkan rentang tanggal
-            const filteredPresences = allPresences.filter(presence => {
-                const presenceDate = new Date(presence.date.split('/').reverse().join('-'));
-                const start = new Date(startDate);
-                const end = new Date(endDate);
-                return presenceDate >= start && presenceDate <= end;
-            });
-            
-            if (filteredPresences.length === 0) {
-                exportStatus.textContent = "Tidak ada data presensi pada rentang tanggal tersebut!";
-                exportStatus.className = 'export-status error';
-                exportStatus.style.display = 'block';
-                return;
-            }
-            
-            // Siapkan data untuk Excel
-            const excelData = [
-                ["Nama Guru", "Kelas", "Tanggal", "Waktu", "Mata Pelajaran"]
-            ];
-            
-            filteredPresences.forEach(presence => {
-                const teacher = teachers.find(t => t.id === presence.teacherId);
-                const subjects = teacher ? teacher.subjects.join(", ") : "Tidak diketahui";
-                
-                excelData.push([
-                    presence.teacherName,
-                    presence.classroom,
-                    presence.date,
-                    presence.time,
-                    subjects
+                // Format waktu to HH:mm
+                let waktu = '-';
+                if (record.Waktu) {
+                    try {
+                        const timeDate = new Date(record.Waktu);
+                        if (!isNaN(timeDate)) {
+                            const hours = String(timeDate.getHours()).padStart(2, '0');
+                            const minutes = String(timeDate.getMinutes()).padStart(2, '0');
+                            waktu = `${hours}:${minutes}`;
+                        } else {
+                            // Try parsing time in format HH:mm:ss or HH:mm
+                            const timeParts = record.Waktu.split(':');
+                            if (timeParts.length >= 2) {
+                                const hours = String(parseInt(timeParts[0])).padStart(2, '0');
+                                const minutes = String(parseInt(timeParts[1])).padStart(2, '0');
+                                waktu = `${hours}:${minutes}`;
+                            }
+                        }
+                    } catch (e) {
+                        console.error('Error parsing time:', e);
+                    }
+                }
+
+                presenceTable.row.add([
+                    index + 1,
+                    record['Nama Guru'] || '-',
+                    record.Kelas || '-',
+                    record.Hari || '-',
+                    tanggal,
+                    waktu,
+                    record['Mata Pelajaran'] || '-',
+                    record['Jam ke'] || '-'
                 ]);
             });
-            
-            // Buat worksheet
-            const ws = XLSX.utils.aoa_to_sheet(excelData);
-            
-            // Buat workbook
+
+            presenceTable.draw();
+        }
+
+        // Export to Excel
+        function exportToExcel() {
+            const ws = XLSX.utils.json_to_sheet(presenceData);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Presensi Guru");
-            
-            // Export ke Excel
-            const today = new Date();
-            const formattedDate = today.toISOString().split('T')[0];
-            XLSX.writeFile(wb, `presensi_guru_${formattedDate}.xlsx`);
-            
-            exportStatus.textContent = `Data berhasil diexport! ${filteredPresences.length} presensi ditemukan.`;
-            exportStatus.className = 'export-status success';
-            exportStatus.style.display = 'block';
+
+            const fileName = `presensi_guru_${new Date().toISOString().split('T')[0]}.xlsx`;
+            XLSX.writeFile(wb, fileName);
         }
-        
-        // Inisialisasi aplikasi
-        function initApp() {
-            // Update waktu secara real-time
-            setInterval(updateDateTime, 1000);
-            updateDateTime();
-            
-            // Isi dropdown guru - tambahkan admin sebagai pilihan pertama
-            const adminOption = document.createElement('option');
-            adminOption.value = "Admin";
-            adminOption.textContent = "Admin";
-            teacherSelect.appendChild(adminOption);
-            
-            // Isi dropdown dengan daftar guru
-            teachers.forEach(teacher => {
-                const option = document.createElement('option');
-                option.value = teacher.name;
-                option.textContent = teacher.name;
-                option.dataset.nik = teacher.nik;
-                teacherSelect.appendChild(option);
-            });
-            
-            // Isi dropdown kelas untuk QR Generator
-            classrooms.forEach(classroom => {
-                const option = document.createElement('option');
-                option.value = classroom;
-                option.textContent = classroom;
-                classroomSelect.appendChild(option);
-            });
-            
-            // Set tanggal untuk export Excel (default: hari ini)
-            const today = new Date();
-            startDateInput.value = today.toISOString().split('T')[0];
-            endDateInput.value = today.toISOString().split('T')[0];
-            
-            // Tambahkan event listener untuk dropdown guru
-            teacherSelect.addEventListener('change', function() {
-                const selectedOption = this.options[this.selectedIndex];
-                if (selectedOption.value === "Admin") {
-                    // Untuk admin, kosongkan password
-                    passwordInput.value = '';
-                    passwordInput.placeholder = "Masukkan password admin";
-                } else if (selectedOption.dataset.nik) {
-                    // Untuk guru, isi password dengan NIK
-                    passwordInput.value = selectedOption.dataset.nik;
-                    passwordInput.placeholder = "Password (NIK)";
-                } else {
-                    passwordInput.value = '';
-                }
-            });
-            
-            // Event listener untuk tombol login
-            loginBtn.addEventListener('click', function() {
-                const teacherName = teacherSelect.value.trim();
-                const password = passwordInput.value.trim();
-                
-                if (!teacherName || !password) {
-                    loginError.textContent = "Pilih nama guru dan masukkan password!";
-                    loginError.style.display = 'block';
-                    return;
-                }
-                
-                // Cek jika login sebagai admin
-                if (teacherName === "Admin") {
-                    if (password === ADMIN_NIK) {
-                        // Login admin berhasil
-                        currentTeacher = {
-                            id: 0,
-                            name: "Admin",
-                            nik: ADMIN_NIK,
-                            subjects: ["Administrator"]
-                        };
-                        
-                        // Load semua presensi dari localStorage
-                        loadPresencesFromLocalStorage();
-                        
-                        // Update UI
-                        updateProfile();
-                        
-                        // Tampilkan tombol admin
-                        adminBtn.style.display = 'block';
-                        
-                        // Sembunyikan login page, tampilkan aplikasi
-                        loginPage.style.display = 'none';
-                        appContainer.style.display = 'block';
-                        
-                        // Buka halaman dashboard
-                        dashboardBtn.click();
-                        
-                        // Reset form login
-                        teacherSelect.value = '';
-                        passwordInput.value = '';
-                        loginError.style.display = 'none';
-                        return;
-                    } else {
-                        loginError.textContent = "Password admin salah!";
-                        loginError.style.display = 'block';
-                        return;
-                    }
-                }
-                
-                // Cari guru yang sesuai
-                const selectedTeacher = teachers.find(t => 
-                    t.name.toLowerCase() === teacherName.toLowerCase() && 
-                    t.nik === password
-                );
-                
-                if (selectedTeacher) {
-                    // Login berhasil
-                    currentTeacher = selectedTeacher;
-                    
-                    // Sembunyikan tombol admin
-                    adminBtn.style.display = 'none';
-                    
-                    // Load presensi dari localStorage
-                    loadPresencesFromLocalStorage();
-                    
-                    // Update UI
-                    updateProfile();
-                    updatePresenceList();
-                    updateStats();
-                    
-                    // Sembunyikan login page, tampilkan aplikasi
-                    loginPage.style.display = 'none';
-                    appContainer.style.display = 'block';
-                    
-                    // Reset form login
-                    teacherSelect.value = '';
-                    passwordInput.value = '';
-                    loginError.style.display = 'none';
-                } else {
-                    // Login gagal
-                    loginError.textContent = "Nama guru atau password salah!";
-                    loginError.style.display = 'block';
-                    passwordInput.value = '';
-                    passwordInput.focus();
-                }
-            });
-            
-            // Event listener untuk tekan enter di input password
-            passwordInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    loginBtn.click();
-                }
-            });
-            
-            // Event listener untuk tombol admin
-            viewAllBtn.addEventListener('click', function() {
-                updateAdminPresenceList(allPresences);
-            });
-            
-            viewTodayBtn.addEventListener('click', function() {
-                const today = formatDate(new Date());
-                const todayPresences = allPresences.filter(p => p.date === today);
-                updateAdminPresenceList(todayPresences);
-            });
-            
-            // Event listener untuk QR Generator
-            generateQrBtn.addEventListener('click', function() {
-                const selectedClassroom = classroomSelect.value;
-                if (!selectedClassroom) {
-                    alert("Pilih kelas terlebih dahulu!");
-                    return;
-                }
-                generateQRCode(selectedClassroom);
-            });
-            
-            downloadQrBtn.addEventListener('click', downloadQRCode);
-            
-            // Event listener untuk export Excel
-            generateExcelBtn.addEventListener('click', exportToExcel);
+
+        // Event Listeners
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+                loginPage.style.display = 'none';
+                dashboard.style.display = 'block';
+                initDataTable();
+                startAutoRefresh();
+            } else {
+                loginError.textContent = 'Username atau password salah!';
+                loginError.classList.remove('d-none');
+            }
+        });
+
+        logoutBtn.addEventListener('click', () => {
+            stopAutoRefresh();
+            loginPage.style.display = 'flex';
+            dashboard.style.display = 'none';
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            loginError.classList.add('d-none');
+        });
+
+        refreshBtn.addEventListener('click', fetchPresenceData);
+        exportBtn.addEventListener('click', exportToExcel);
+
+        // Auto refresh functionality
+        let autoRefreshInterval;
+
+        function startAutoRefresh() {
+            // Initial fetch
+            fetchPresenceData();
+            // Set up auto-refresh every 30 seconds
+            autoRefreshInterval = setInterval(fetchPresenceData, 5000);
         }
-        
-        // Jalankan aplikasi saat halaman dimuat
-        window.addEventListener('load', initApp);
+
+        function stopAutoRefresh() {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+            }
+        }
+
+        // Initial setup
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check if user was previously logged in
+            const isLoggedIn = sessionStorage.getItem('adminLoggedIn');
+            if (isLoggedIn === 'true') {
+                loginPage.style.display = 'none';
+                dashboard.style.display = 'block';
+                initDataTable();
+                startAutoRefresh();
+            }
+        });
     </script>
 </body>
 </html>
