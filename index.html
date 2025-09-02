@@ -340,24 +340,112 @@
             padding-top: 1rem;
         }
 
+        /* Pagination Styles */
         .dataTables_wrapper .dataTables_paginate {
-            padding-top: 1rem;
+            padding: 1rem 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
         }
 
         .dataTables_wrapper .dataTables_paginate .paginate_button {
-            border-radius: 0.5rem;
-            padding: 0.5rem 1rem;
-            margin: 0 0.2rem;
-            border: none;
-            background: var(--table-header-bg);
-            color: var(--primary) !important;
+            min-width: 40px;
+            height: 40px;
+            border-radius: 0.75rem;
+            padding: 0.5rem;
+            margin: 0;
+            border: 2px solid transparent;
+            background: var(--background-color) !important;
+            color: var(--text-primary) !important;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            user-select: none;
         }
 
-        .dataTables_wrapper .dataTables_paginate .paginate_button.current,
-        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+        .dataTables_wrapper .dataTables_paginate .paginate_button.previous,
+        .dataTables_wrapper .dataTables_paginate .paginate_button.next {
+            min-width: auto;
+            padding: 0.5rem 1rem;
+            background: var(--background-color) !important;
+            color: var(--primary) !important;
+            font-weight: 600;
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
             background: var(--primary) !important;
             color: white !important;
-            border: none;
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(74, 111, 195, 0.15);
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+            background: var(--primary-light) !important;
+            color: white !important;
+            border-color: var(--primary-light);
+            box-shadow: 0 4px 12px rgba(74, 111, 195, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        /* Responsive Pagination */
+        @media (max-width: 768px) {
+            .dataTables_wrapper .dataTables_paginate {
+                padding: 1rem 0.5rem;
+                justify-content: center;
+            }
+
+            .dataTables_wrapper .dataTables_paginate .paginate_button {
+                min-width: 36px;
+                height: 36px;
+                padding: 0.4rem;
+                font-size: 0.9rem;
+            }
+
+            .dataTables_wrapper .dataTables_paginate .paginate_button.previous,
+            .dataTables_wrapper .dataTables_paginate .paginate_button.next {
+                padding: 0.4rem 0.8rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .dataTables_wrapper .dataTables_paginate {
+                padding: 0.75rem 0.25rem;
+                gap: 0.25rem;
+            }
+
+            .dataTables_wrapper .dataTables_paginate .paginate_button {
+                min-width: 32px;
+                height: 32px;
+                padding: 0.3rem;
+                font-size: 0.85rem;
+                border-radius: 0.5rem;
+            }
+
+            .dataTables_wrapper .dataTables_paginate .paginate_button.previous,
+            .dataTables_wrapper .dataTables_paginate .paginate_button.next {
+                padding: 0.3rem 0.6rem;
+            }
+
+            /* Hide some page numbers on very small screens */
+            .dataTables_wrapper .dataTables_paginate .paginate_button:not(.previous):not(.next):not(.current) {
+                display: none;
+            }
+
+            .dataTables_wrapper .dataTables_paginate .paginate_button:nth-child(2),
+            .dataTables_wrapper .dataTables_paginate .paginate_button:nth-last-child(2) {
+                display: inline-flex;
+            }
         }
 
         /* Status Badges */
@@ -388,10 +476,12 @@
         .logout-btn {
             color: var(--danger-color);
             transition: all 0.3s ease;
+            text-decoration: none !important;
         }
 
         .logout-btn:hover {
             color: #dc2626;
+            text-decoration: none !important;
         }
 
         /* Marquee Animation Styles */
@@ -790,6 +880,13 @@
                 fixedHeader: true,
                 paging: true,
                 pageLength: 10, // Jumlah baris per halaman
+                pagingType: 'simple_numbers', // Tipe pagination yang lebih sederhana untuk mobile
+                language: {
+                    paginate: {
+                        previous: '<i class="fas fa-chevron-left"></i> Sebelumnya',
+                        next: 'Selanjutnya <i class="fas fa-chevron-right"></i>'
+                    }
+                },
                 stateSave: true, // Simpan state tabel (termasuk halaman saat ini)
                 stateDuration: -1, // State disimpan tanpa batas waktu (-1)
                 stateLoadParams: function(settings, data) {
