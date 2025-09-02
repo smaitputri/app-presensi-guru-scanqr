@@ -373,14 +373,180 @@
             }
         }
 
-        /* Responsive */
+        /* Responsive Styles */
+        @media (max-width: 1200px) {
+            .table-card {
+                padding: 1.5rem;
+            }
+        }
+
+        @media (max-width: 991px) {
+            .table-card {
+                padding: 1.25rem;
+            }
+            
+            .marquee-text {
+                font-size: 1rem;
+            }
+        }
+
         @media (max-width: 768px) {
             .dashboard {
-                padding: 1rem;
+                padding: 0.75rem;
             }
 
-            .stat-card {
-                margin-bottom: 1rem;
+            .table-card {
+                padding: 1rem;
+                border-radius: 1rem;
+            }
+
+            .table thead th {
+                white-space: nowrap;
+                padding: 0.75rem 1rem;
+            }
+
+            .table tbody td {
+                padding: 0.5rem 1rem;
+            }
+
+            .btn-primary, .btn-light-primary {
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+
+            .marquee-container {
+                padding: 0.6rem;
+            }
+
+            .marquee-text img {
+                max-height: 30px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .dashboard {
+                padding: 0.5rem;
+            }
+
+            .table-card {
+                padding: 0.75rem;
+                margin-top: 1rem;
+            }
+
+            .table thead th {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.8rem;
+            }
+
+            .table tbody td {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.85rem;
+            }
+
+            .d-flex.justify-content-end {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .d-flex.justify-content-end .btn {
+                width: 100%;
+            }
+
+            .marquee-text {
+                font-size: 0.9rem;
+            }
+
+            .marquee-text img {
+                max-height: 25px;
+            }
+
+            .navbar.fixed-bottom {
+                padding: 0.5rem;
+            }
+
+            .navbar-brand {
+                font-size: 0.9rem;
+            }
+
+            .logout-btn {
+                font-size: 0.9rem;
+            }
+        }
+
+        /* DataTables and Table Responsive Styles */
+        .table-responsive {
+            margin: 0;
+            padding: 0;
+            border: none;
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            -ms-overflow-style: -ms-autohiding-scrollbar;
+        }
+
+        .table {
+            width: 100% !important;
+            margin: 0 !important;
+        }
+
+        /* Force table to be 100% wide */
+        .dataTables_wrapper,
+        .dataTables_scroll,
+        .dataTables_scrollBody {
+            width: 100% !important;
+        }
+
+        /* Prevent table shrinking */
+        .table th,
+        .table td {
+            white-space: nowrap;
+            min-width: 100px;
+        }
+
+        .table th:first-child,
+        .table td:first-child {
+            min-width: 50px;
+        }
+
+        .table th:nth-child(2),
+        .table td:nth-child(2),
+        .table th:nth-child(7),
+        .table td:nth-child(7) {
+            min-width: 200px;
+        }
+
+        /* Custom scrollbar for better UX */
+        .table-responsive::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .table-responsive::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .table-responsive::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+        }
+
+        .table-responsive::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
+        }
+
+        /* Show scroll indicator on mobile */
+        @media (max-width: 768px) {
+            .table-card::after {
+                content: '';
+                position: absolute;
+                right: 0;
+                top: 0;
+                bottom: 0;
+                width: 30px;
+                background: linear-gradient(to right, transparent, rgba(255,255,255,0.8));
+                pointer-events: none;
+                opacity: 0.8;
+                z-index: 1;
             }
         }
     </style>
@@ -526,17 +692,48 @@
         // Initialize DataTable
         function initDataTable() {
             presenceTable = $('#presence-table').DataTable({
-                responsive: true,
-                order: [[1, 'desc']],
+                order: [], // Remove default sorting to maintain spreadsheet order
                 language: {
                     url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/id.json'
                 },
+                scrollX: true,
+                scrollCollapse: true,
+                autoWidth: false,
+                fixedHeader: true,
+                paging: true,
                 columnDefs: [
                     {
                         targets: 0,
-                        className: 'text-center'
+                        className: 'text-center',
+                        width: '50px'
+                    },
+                    {
+                        targets: [1, 6], // Nama Guru dan Mata Pelajaran
+                        width: '200px'
+                    },
+                    {
+                        targets: [2, 3, 4, 5, 7], // Kolom lainnya
+                        width: '100px'
                     }
-                ]
+                ],
+                responsive: false, // Disable responsive to force horizontal scroll
+                drawCallback: function(settings) {
+                    // Adjust table container on draw
+                    $(window).trigger('resize');
+                    
+                    // Add swipe indicator if table is wider than container
+                    const tableWidth = $(this).width();
+                    const containerWidth = $('.table-responsive').width();
+                    if (tableWidth > containerWidth) {
+                        $('.table-card').addClass('has-scroll');
+                    } else {
+                        $('.table-card').removeClass('has-scroll');
+                    }
+                },
+                initComplete: function() {
+                    // Force table to take full width
+                    $(this).closest('.dataTables_wrapper').find('.dataTables_scrollBody').css('width', '100%');
+                }
             });
         }
 
@@ -590,22 +787,29 @@
                 let waktu = '-';
                 if (record.Waktu) {
                     try {
-                        const timeDate = new Date(record.Waktu);
-                        if (!isNaN(timeDate)) {
-                            const hours = String(timeDate.getHours()).padStart(2, '0');
-                            const minutes = String(timeDate.getMinutes()).padStart(2, '0');
-                            waktu = `${hours}:${minutes}`;
-                        } else {
-                            // Try parsing time in format HH:mm:ss or HH:mm
+                        if (record.Waktu.includes('T')) {
+                            // Extract time directly from the string format "1899-12-30T07:32"
+                            const timePart = record.Waktu.split('T')[1];
+                            if (timePart) {
+                                const [hours, minutes] = timePart.split(':');
+                                if (hours && minutes) {
+                                    waktu = `${hours.padStart(2, '0')}:${minutes.padStart(2, '0')}`;
+                                }
+                            }
+                        } else if (record.Waktu.includes(':')) {
+                            // Handle HH:mm or HH:mm:ss format
                             const timeParts = record.Waktu.split(':');
                             if (timeParts.length >= 2) {
-                                const hours = String(parseInt(timeParts[0])).padStart(2, '0');
-                                const minutes = String(parseInt(timeParts[1])).padStart(2, '0');
-                                waktu = `${hours}:${minutes}`;
+                                waktu = `${timeParts[0].padStart(2, '0')}:${timeParts[1].padStart(2, '0')}`;
                             }
+                        } else {
+                            // If it's just time in another format, use it as is
+                            waktu = record.Waktu;
                         }
                     } catch (e) {
                         console.error('Error parsing time:', e);
+                        // If there's an error, show the original value
+                        waktu = record.Waktu;
                     }
                 }
 
@@ -626,7 +830,36 @@
 
         // Export to Excel
         function exportToExcel() {
-            const ws = XLSX.utils.json_to_sheet(presenceData);
+            // Get the visible data from DataTable in current display order
+            const exportData = presenceTable.rows().data().toArray().map((row, index) => {
+                return {
+                    'No': index + 1,
+                    'Nama Guru': row[1],
+                    'Kelas': row[2],
+                    'Hari': row[3],
+                    'Tanggal': row[4],
+                    'Waktu': row[5],
+                    'Mata Pelajaran': row[6],
+                    'Jam ke': row[7]
+                };
+            });
+
+            // Create worksheet with the formatted data
+            const ws = XLSX.utils.json_to_sheet(exportData);
+
+            // Set column widths
+            const colWidths = [
+                { wch: 5 },  // No
+                { wch: 30 }, // Nama Guru
+                { wch: 15 }, // Kelas
+                { wch: 15 }, // Hari
+                { wch: 15 }, // Tanggal
+                { wch: 10 }, // Waktu
+                { wch: 30 }, // Mata Pelajaran
+                { wch: 10 }  // Jam ke
+            ];
+            ws['!cols'] = colWidths;
+
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Presensi Guru");
 
@@ -679,6 +912,18 @@
             }
         }
 
+        // Handle window resize for responsive table
+        let resizeTimer;
+        window.addEventListener('resize', function() {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(function() {
+                if (presenceTable) {
+                    presenceTable.columns.adjust();
+                    presenceTable.responsive.recalc();
+                }
+            }, 250);
+        });
+
         // Initial setup
         document.addEventListener('DOMContentLoaded', () => {
             // Check if user was previously logged in
@@ -688,6 +933,12 @@
                 dashboard.style.display = 'block';
                 initDataTable();
                 startAutoRefresh();
+            }
+
+            // Initial responsive adjustment
+            if (presenceTable) {
+                presenceTable.columns.adjust();
+                presenceTable.responsive.recalc();
             }
         });
     </script>
