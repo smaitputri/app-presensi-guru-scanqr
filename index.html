@@ -43,56 +43,144 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            padding: 1rem;
         }
 
         .login-container {
             background: var(--card-background);
             padding: 2.5rem;
-            border-radius: 1rem;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border-radius: 1.5rem;
+            box-shadow: 0 15px 35px rgba(74, 111, 195, 0.2);
             width: 100%;
             max-width: 400px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(to right, var(--primary), var(--primary-light));
         }
 
         .login-logo {
             text-align: center;
             margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .login-logo i {
-            font-size: 3rem;
-            color: var(--primary-color);
+            font-size: 2.5rem;
+            color: var(--primary);
+            filter: drop-shadow(0 2px 4px rgba(74, 111, 195, 0.2));
         }
 
         .login-title {
             text-align: center;
             margin-bottom: 2rem;
             color: var(--text-primary);
-            font-weight: 600;
+            font-weight: 700;
+            font-size: 1.75rem;
+            line-height: 1.3;
         }
 
         .login-form .form-control {
-            padding: 0.75rem 1rem;
-            border: 1px solid var(--border-color);
-            border-radius: 0.5rem;
-            margin-bottom: 1rem;
+            padding: 0.875rem 1.25rem;
+            border: 2px solid var(--border-color);
+            border-radius: 0.75rem;
+            margin-bottom: 1.25rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background-color: var(--background-color);
+        }
+
+        .login-form .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(74, 111, 195, 0.1);
+            outline: none;
+        }
+
+        .login-form .form-control::placeholder {
+            color: var(--text-secondary);
+            opacity: 0.8;
         }
 
         .login-btn {
             width: 100%;
-            padding: 0.75rem;
+            padding: 0.875rem;
             background: var(--primary);
             border: none;
-            border-radius: 0.5rem;
+            border-radius: 0.75rem;
             color: white;
             font-weight: 600;
+            font-size: 1rem;
             transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
 
         .login-btn:hover {
             background: var(--primary-light);
             transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(74, 111, 195, 0.15);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        #login-error {
+            border-radius: 0.75rem;
+            font-size: 0.9rem;
+            border: none;
+            background-color: rgba(220, 53, 69, 0.1);
+        }
+
+        /* Login Page Responsive Styles */
+        @media (max-width: 576px) {
+            .login-container {
+                padding: 2rem 1.5rem;
+                margin: 1rem;
+                border-radius: 1.25rem;
+            }
+
+            .login-title {
+                font-size: 1.5rem;
+                margin-bottom: 1.5rem;
+            }
+
+            .login-form .form-control {
+                padding: 0.75rem 1rem;
+                margin-bottom: 1rem;
+                font-size: 0.95rem;
+            }
+
+            .login-btn {
+                padding: 0.75rem;
+                font-size: 0.95rem;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .login-container {
+                padding: 1.75rem 1.25rem;
+            }
+
+            .login-title {
+                font-size: 1.35rem;
+            }
+
+            .login-form .form-control {
+                padding: 0.7rem 0.9rem;
+                font-size: 0.9rem;
+            }
         }
 
         /* Dashboard Styles */
@@ -558,7 +646,7 @@
             <!-- <div class="login-logo">
                 <i class="fas fa-user-shield"></i>
             </div> -->
-            <h2 class="login-title">Admin Presensi Pergantian jam</h2>
+            <h2 class="login-title">Admin Presensi Pergantian Jam Guru</h2>
             <form class="login-form" id="login-form">
                 <input type="text" class="form-control" id="username" placeholder="Username" required>
                 <input type="password" class="form-control" id="password" placeholder="Password" required>
