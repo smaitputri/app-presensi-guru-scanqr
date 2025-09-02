@@ -744,7 +744,7 @@
                 </a>
                 <button class="btn btn-link logout-btn ms-auto" id="logout-btn">
                     <i class="fas fa-sign-out-alt me-2"></i>
-                    Keluar
+                    Log Out
                 </button>
             </div>
         </nav>
@@ -789,6 +789,15 @@
                 autoWidth: false,
                 fixedHeader: true,
                 paging: true,
+                pageLength: 10, // Jumlah baris per halaman
+                stateSave: true, // Simpan state tabel (termasuk halaman saat ini)
+                stateDuration: -1, // State disimpan tanpa batas waktu (-1)
+                stateLoadParams: function(settings, data) {
+                    // Pastikan nomor halaman valid
+                    if (data.start > data.length) {
+                        data.start = 0;
+                    }
+                },
                 columnDefs: [
                     {
                         targets: 0,
@@ -816,6 +825,11 @@
                         $('.table-card').addClass('has-scroll');
                     } else {
                         $('.table-card').removeClass('has-scroll');
+                    }
+
+                    // Scroll ke posisi yang tersimpan jika ada
+                    if (settings._scroll) {
+                        $(settings.nScrollBody).scrollLeft(settings._scroll.x);
                     }
                 },
                 initComplete: function() {
@@ -852,6 +866,12 @@
 
         // Update presence table
         function updateTable() {
+            // Simpan state sebelum update
+            const currentPage = presenceTable.page();
+            const scrollPos = {
+                x: $(presenceTable.table().node()).closest('.dataTables_scrollBody').scrollLeft()
+            };
+            
             presenceTable.clear();
 
             presenceData.forEach((record, index) => {
@@ -913,7 +933,16 @@
                 ]);
             });
 
-            presenceTable.draw();
+            presenceTable.draw(false); // false untuk mencegah reset paging
+
+            // Kembalikan ke halaman sebelumnya jika masih valid
+            if (currentPage !== undefined && currentPage < presenceTable.page.info().pages) {
+                presenceTable.page(currentPage).draw('page');
+            }
+
+            // Kembalikan posisi scroll
+            presenceTable.settings()[0]._scroll = scrollPos;
+            $(presenceTable.table().node()).closest('.dataTables_scrollBody').scrollLeft(scrollPos.x);
         }
 
         // Export to Excel
